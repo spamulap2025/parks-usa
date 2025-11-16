@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Phone } from 'lucide-react'
-import MapView from '@/components/MapView'
+import ParksExplorer from '@/components/ParksExplorer'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -26,11 +26,7 @@ function App() {
   const [showEmailForm, setShowEmailForm] = useState(false)
 
   if (loggedInUser) {
-    return (
-      <div className="relative h-screen w-screen">
-        <MapView />
-      </div>
-    )
+    return <ParksExplorer />
   }
 
   const handleEmailContinue = async (e: React.FormEvent) => {
