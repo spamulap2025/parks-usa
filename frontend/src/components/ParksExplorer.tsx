@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
-import { Locate, Navigation, Trees, Mountain, Landmark, Flag } from 'lucide-react'
+import { Home, Navigation, Trees, Mountain, Landmark, Flag } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import federalSitesData from '../data/federal_sites.json'
 
@@ -98,7 +98,7 @@ function LayerToggles({
   nationalParksCount: number
   nationalMonumentsCount: number
 }){
-  const baseBtn = "w-11 h-11 rounded-full backdrop-blur-md border shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
+  const baseBtn = "w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm border border-black/10 shadow-sm hover:shadow-md hover:-translate-y-0.5 flex items-center justify-center transition-all duration-200 cursor-pointer"
 
   const layers = [
     { 
@@ -149,23 +149,23 @@ function LayerToggles({
                   className={`${baseBtn} relative`}
                   onClick={layer.toggle}
                   style={{
-                    backgroundColor: layer.show ? layer.color : 'rgba(24, 24, 27, 0.7)',
-                    borderColor: layer.show ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: layer.show ? layer.color : 'rgba(255, 255, 255, 0.9)',
+                    borderColor: 'rgba(0, 0, 0, 0.1)',
                   }}
                 >
                   <Icon 
                     size={18} 
-                    className={layer.show ? 'text-white' : 'text-zinc-400'}
+                    className={layer.show ? 'text-white' : 'text-zinc-600'}
                     strokeWidth={2.5}
                   />
                   {layer.count > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-zinc-900">
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
                       {layer.count > 99 ? '99+' : layer.count}
                     </span>
                   )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="left" className="bg-zinc-900 text-white border-zinc-700">
+              <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
                 <p className="text-sm font-medium">{layer.label}</p>
               </TooltipContent>
             </Tooltip>
@@ -177,37 +177,17 @@ function LayerToggles({
 }
 
 function MapControls({ onLocate }: { onLocate: () => void }) {
-  const map = useMap()
-
-  if (!map) return null
-
-  const gmBtn = "w-11 h-11 rounded-full backdrop-blur-md bg-zinc-900/70 border border-white/10 shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
+  const gmBtn = "w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm border border-black/10 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
 
   return (
-    <div className="absolute right-4 bottom-4 z-[1000] flex flex-col items-center gap-2.5">
+    <div className="absolute right-4 bottom-4 z-[1000]">
       <button
-        aria-label="Zoom in"
-        title="Zoom in"
-        className={gmBtn}
-        onClick={() => map.setZoom((map.getZoom() || 15) + 1)}
-      >
-        <span className="text-xl font-light text-white">+</span>
-      </button>
-      <button
-        aria-label="Zoom out"
-        title="Zoom out"
-        className={gmBtn}
-        onClick={() => map.setZoom((map.getZoom() || 15) - 1)}
-      >
-        <span className="text-xl font-light text-white">−</span>
-      </button>
-      <button
-        aria-label="Your location"
-        title="Your location"
+        aria-label="Home"
+        title="Home"
         className={gmBtn}
         onClick={onLocate}
       >
-        <Locate size={18} className="text-white" strokeWidth={2.5} />
+        <Home size={18} className="text-zinc-700" strokeWidth={2.5} />
       </button>
     </div>
   )
@@ -454,10 +434,10 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
   const [loadingImage, setLoadingImage] = useState(false)
   
   const typeColors = {
-    local: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    state: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-    'national-park': 'bg-rose-500/20 text-rose-300 border-rose-500/30',
-    'national-monument': 'bg-violet-500/20 text-violet-300 border-violet-500/30',
+    local: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    state: 'bg-amber-100 text-amber-800 border-amber-200',
+    'national-park': 'bg-rose-100 text-rose-800 border-rose-200',
+    'national-monument': 'bg-violet-100 text-violet-800 border-violet-200',
   }
 
   const typeLabels = {
@@ -508,36 +488,44 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
   }, [selectedPark])
 
   return (
-    <div className="h-full overflow-y-auto backdrop-blur-md bg-zinc-900/80 border-l border-white/10">
-      <div className="sticky top-0 z-10 p-4 border-b border-white/10 bg-zinc-900/90 backdrop-blur-md">
-        <p className="text-sm font-medium text-zinc-300">{parks.length} sites found</p>
-      </div>
+    <div className="h-full overflow-y-auto bg-white/90 backdrop-blur-md border-l border-black/10">
       {error && (
-        <div className="mx-3 mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg backdrop-blur-sm">
-          <p className="text-sm text-amber-300">{error}</p>
+        <div className="mx-3 mt-3 p-3 bg-amber-100 border border-amber-200 rounded-lg">
+          <p className="text-sm text-amber-800">{error}</p>
         </div>
       )}
       {selectedPark && (
-        <div className="m-3 mb-4 rounded-xl overflow-hidden bg-white/10 border border-white/20 shadow-xl">
+        <div className="m-3 mb-4 rounded-xl overflow-hidden bg-white/95 border border-black/10 shadow-xl">
           {loadingImage ? (
-            <div className="h-48 bg-zinc-800/50 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <div className="h-48 bg-zinc-100 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-900"></div>
             </div>
           ) : parkImage ? (
             <img src={parkImage} alt={selectedPark.name} className="w-full h-48 object-cover" />
           ) : (
-            <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+            <div className="h-48 bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center">
               <p className="text-zinc-500 text-sm">No image available</p>
             </div>
           )}
           <div className="p-4">
-            <h2 className="text-lg font-bold text-white mb-2">{selectedPark.name}</h2>
-            {selectedPark.state && <p className="text-sm text-zinc-400 mb-3">{selectedPark.state}</p>}
-            <div className="flex items-center gap-3">
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
-                {typeLabels[selectedPark.type]}
-              </span>
-              <span className="text-sm text-zinc-300 font-semibold">{selectedPark.distance} mi away</span>
+            <h2 className="text-lg font-bold text-zinc-900 mb-2">{selectedPark.name}</h2>
+            {selectedPark.state && <p className="text-sm text-zinc-600 mb-3">{selectedPark.state}</p>}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
+                  {typeLabels[selectedPark.type]}
+                </span>
+                <span className="text-sm text-zinc-700 font-semibold">{selectedPark.distance} mi away</span>
+              </div>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPark.location.lat},${selectedPark.location.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 text-sm font-medium shadow-sm transition"
+              >
+                <Navigation size={16} strokeWidth={2.5} />
+                Directions
+              </a>
             </div>
           </div>
         </div>
@@ -546,34 +534,24 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
         {parks.map((park) => (
           <div
             key={park.id}
-            className={`group rounded-xl p-3 cursor-pointer transition-all duration-150 active:scale-[0.98] ${
+            className={`rounded-xl p-3 cursor-pointer transition-all duration-150 border shadow-sm hover:shadow ${
               selectedParkId === park.id 
-                ? 'bg-white/10 ring-2 ring-sky-400/50 shadow-lg' 
-                : 'bg-white/5 hover:bg-white/10 hover:shadow-md'
+                ? 'bg-white ring-2 ring-sky-400/50 border-sky-200' 
+                : 'bg-white hover:bg-zinc-50 border-zinc-200'
             }`}
             onClick={() => onParkClick(park)}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white text-[15px] truncate leading-tight">{park.name}</h3>
-                {park.state && <p className="text-sm text-zinc-400 mt-1">{park.state}</p>}
+                <h3 className="font-semibold text-zinc-900 text-[15px] truncate leading-tight">{park.name}</h3>
+                {park.state && <p className="text-sm text-zinc-600 mt-1">{park.state}</p>}
                 <div className="flex items-center gap-2 mt-2.5">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-medium border ${typeColors[park.type]}`}>
                     {typeLabels[park.type]}
                   </span>
-                  <span className="text-sm text-zinc-400 font-medium">{park.distance} mi</span>
+                  <span className="text-sm text-zinc-600 font-medium">{park.distance} mi</span>
                 </div>
               </div>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${park.location.lat},${park.location.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 p-2 text-sky-400 hover:bg-sky-400/10 rounded-full transition-all duration-150"
-                onClick={(e) => e.stopPropagation()}
-                title="Get directions"
-              >
-                <Navigation size={18} strokeWidth={2.5} />
-              </a>
             </div>
           </div>
         ))}
