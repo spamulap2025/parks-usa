@@ -121,7 +121,7 @@ function App() {
             <>
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-normal justify-start px-4 border-gray-300 hover:bg-gray-50"
+                className="w-full h-12 text-sm font-normal justify-center px-4 border-gray-300 hover:bg-gray-50"
                 onClick={() => setError('OAuth providers not yet implemented')}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@ function App() {
 
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-normal justify-start px-4 border-gray-300 hover:bg-gray-50"
+                className="w-full h-12 text-sm font-normal justify-center px-4 border-gray-300 hover:bg-gray-50"
                 onClick={() => setError('OAuth providers not yet implemented')}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
@@ -158,7 +158,7 @@ function App() {
 
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-normal justify-start px-4 border-gray-300 hover:bg-gray-50"
+                className="w-full h-12 text-sm font-normal justify-center px-4 border-gray-300 hover:bg-gray-50"
                 onClick={() => setError('OAuth providers not yet implemented')}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ function App() {
 
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-normal justify-start px-4 border-gray-300 hover:bg-gray-50"
+                className="w-full h-12 text-sm font-normal justify-center px-4 border-gray-300 hover:bg-gray-50"
                 onClick={() => setError('Phone authentication not yet implemented')}
               >
                 <Phone className="w-5 h-5 mr-3" />
