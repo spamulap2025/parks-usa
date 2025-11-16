@@ -165,7 +165,8 @@ function ParksSearcher({
   showLocal,
   showState,
   showNationalParks,
-  showNationalMonuments
+  showNationalMonuments,
+  userLocation
 }: { 
   onParksFound: (parks: Park[]) => void
   onError: (error: string) => void
@@ -173,7 +174,8 @@ function ParksSearcher({
   showState: boolean
   showNationalParks: boolean
   showNationalMonuments: boolean
-}) {
+  userLocation: LatLng
+}){
   const map = useMap()
 
   useEffect(() => {
@@ -213,7 +215,7 @@ function ParksSearcher({
         federalSitesData.nationalParks.forEach((park: any) => {
           const location = { lat: park.lat, lng: park.lng }
           const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(center.lat, center.lng),
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
             new google.maps.LatLng(location.lat, location.lng)
           ) / 1609.34
 
@@ -233,7 +235,7 @@ function ParksSearcher({
         federalSitesData.nationalMonuments.forEach((monument: any) => {
           const location = { lat: monument.lat, lng: monument.lng }
           const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(center.lat, center.lng),
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
             new google.maps.LatLng(location.lat, location.lng)
           ) / 1609.34
 
@@ -276,7 +278,7 @@ function ParksSearcher({
               if (lat && lon) {
                 const location = { lat, lng: lon }
                 const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(center.lat, center.lng),
+                  new google.maps.LatLng(userLocation.lat, userLocation.lng),
                   new google.maps.LatLng(lat, lon)
                 ) / 1609.34
 
@@ -329,7 +331,7 @@ function ParksSearcher({
               if (lat && lon) {
                 const location = { lat, lng: lon }
                 const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(center.lat, center.lng),
+                  new google.maps.LatLng(userLocation.lat, userLocation.lng),
                   new google.maps.LatLng(lat, lon)
                 ) / 1609.34
 
@@ -388,7 +390,7 @@ function ParksSearcher({
         abortController.abort()
       }
     }
-  }, [map, onParksFound, onError, showLocal, showState, showNationalParks, showNationalMonuments])
+  }, [map, onParksFound, onError, showLocal, showState, showNationalParks, showNationalMonuments, userLocation])
 
   return null
 }
@@ -458,6 +460,7 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
 
 export default function ParksExplorer() {
   const [center, setCenter] = useState<LatLng>({ lat: 37.7749, lng: -122.4194 })
+  const [userLocation, setUserLocation] = useState<LatLng>({ lat: 37.7749, lng: -122.4194 })
   const [zoom, setZoom] = useState<number | undefined>(undefined)
   const [allParks, setAllParks] = useState<Park[]>([])
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null)
@@ -479,7 +482,11 @@ export default function ParksExplorer() {
   useEffect(() => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (pos) => {
+        const location = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setCenter(location)
+        setUserLocation(location)
+      },
       () => {},
       { enableHighAccuracy: true, timeout: 8000 }
     )
@@ -488,7 +495,11 @@ export default function ParksExplorer() {
   const handleLocationClick = () => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (pos) => {
+        const location = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setCenter(location)
+        setUserLocation(location)
+      },
       () => {},
       { enableHighAccuracy: true, timeout: 8000 }
     )
@@ -577,7 +588,7 @@ export default function ParksExplorer() {
             mapTypeId="satellite"
             className="h-full w-full"
           >
-            <BlueDotMarker position={center} />
+            <BlueDotMarker position={userLocation} />
             <Recenter center={center} zoom={zoom} />
             <LayerToggles
               showLocal={showLocal}
@@ -597,6 +608,7 @@ export default function ParksExplorer() {
               showState={showState}
               showNationalParks={showNationalParks}
               showNationalMonuments={showNationalMonuments}
+              userLocation={userLocation}
             />
             {parks.map((park) => (
               <ParkMarker
