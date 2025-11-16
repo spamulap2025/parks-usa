@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
 import { Locate, Navigation } from 'lucide-react'
+import federalSitesData from '../data/federal_sites.json'
 
 type LatLng = { lat: number; lng: number }
 
@@ -11,222 +12,9 @@ type Park = {
   type: 'local' | 'state' | 'national-park' | 'national-monument'
   address: string
   distance: number
+  state?: string
 }
 
-const NATIONAL_PARKS = [
-  'Acadia National Park',
-  'Arches National Park',
-  'Badlands National Park',
-  'Big Bend National Park',
-  'Biscayne National Park',
-  'Black Canyon of the Gunnison National Park',
-  'Bryce Canyon National Park',
-  'Canyonlands National Park',
-  'Capitol Reef National Park',
-  'Carlsbad Caverns National Park',
-  'Channel Islands National Park',
-  'Congaree National Park',
-  'Crater Lake National Park',
-  'Cuyahoga Valley National Park',
-  'Death Valley National Park',
-  'Denali National Park',
-  'Dry Tortugas National Park',
-  'Everglades National Park',
-  'Gates of the Arctic National Park',
-  'Gateway Arch National Park',
-  'Glacier National Park',
-  'Glacier Bay National Park',
-  'Grand Canyon National Park',
-  'Grand Teton National Park',
-  'Great Sand Dunes National Park',
-  'Great Smoky Mountains National Park',
-  'Guadalupe Mountains National Park',
-  'Haleakalā National Park',
-  'Hawai\'i Volcanoes National Park',
-  'Hot Springs National Park',
-  'Indiana Dunes National Park',
-  'Isle Royale National Park',
-  'Joshua Tree National Park',
-  'Katmai National Park',
-  'Kenai Fjords National Park',
-  'Kings Canyon National Park',
-  'Kobuk Valley National Park',
-  'Lake Clark National Park',
-  'Lassen Volcanic National Park',
-  'Mammoth Cave National Park',
-  'Mesa Verde National Park',
-  'Mount Rainier National Park',
-  'North Cascades National Park',
-  'Olympic National Park',
-  'Petrified Forest National Park',
-  'Pinnacles National Park',
-  'Redwood National and State Parks',
-  'Rocky Mountain National Park',
-  'Saguaro National Park',
-  'Sequoia National Park',
-  'Shenandoah National Park',
-  'Theodore Roosevelt National Park',
-  'Virgin Islands National Park',
-  'Voyageurs National Park',
-  'White Sands National Park',
-  'Wind Cave National Park',
-  'Wrangell–St. Elias National Park',
-  'Yellowstone National Park',
-  'Yosemite National Park',
-  'Zion National Park',
-]
-
-const NATIONAL_MONUMENTS = [
-  'Admiralty Island National Monument',
-  'African Burial Ground National Monument',
-  'Agate Fossil Beds National Monument',
-  'Agua Fria National Monument',
-  'Aleutian Islands World War II National Monument',
-  'Alibates Flint Quarries National Monument',
-  'Aniakchak National Monument',
-  'Avi Kwa Ame National Monument',
-  'Aztec Ruins National Monument',
-  'Baaj Nwaavjo I\'tah Kukveni – Ancestral Footprints of the Grand Canyon National Monument',
-  'Bandelier National Monument',
-  'Basin and Range National Monument',
-  'Bears Ears National Monument',
-  'Belmont‑Paul Women\'s Equality National Monument',
-  'Berryessa Snow Mountain National Monument',
-  'Birmingham Civil Rights National Monument',
-  'Booker T. Washington National Monument',
-  'Browns Canyon National Monument',
-  'Buck Island Reef National Monument',
-  'Cabrillo National Monument',
-  'California Coastal National Monument',
-  'Camp Hale — Continental Divide National Monument',
-  'Camp Nelson National Monument',
-  'Canyon de Chelly National Monument',
-  'Canyons of the Ancients National Monument',
-  'Cape Krusenstern National Monument',
-  'Capulin Volcano National Monument',
-  'Carlisle Federal Indian Boarding School National Monument',
-  'Carrizo Plain National Monument',
-  'Casa Grande Ruins National Monument',
-  'Castillo de San Marcos National Monument',
-  'Castle Clinton National Monument',
-  'Castle Mountains National Monument',
-  'Castner Range National Monument',
-  'Cedar Breaks National Monument',
-  'César E. Chávez National Monument',
-  'Charles Young Buffalo Soldiers National Monument',
-  'Chimney Rock National Monument',
-  'Chiricahua National Monument',
-  'Chuckwalla National Monument',
-  'Colorado National Monument',
-  'Craters of the Moon National Monument',
-  'Devils Postpile National Monument',
-  'Devils Tower National Monument',
-  'Dinosaur National Monument',
-  'Effigy Mounds National Monument',
-  'El Malpais National Monument',
-  'El Morro National Monument',
-  'Emmett Till and Mamie Till‑Mobley National Monument',
-  'Florissant Fossil Beds National Monument',
-  'Fort Frederica National Monument',
-  'Fort Matanzas National Monument',
-  'Fort McHenry National Monument',
-  'Fort Monroe National Monument',
-  'Fort Pulaski National Monument',
-  'Fort Stanwix National Monument',
-  'Fort Union National Monument',
-  'Fossil Butte National Monument',
-  'Frances Perkins National Monument',
-  'Freedom Riders National Monument',
-  'George Washington Birthplace National Monument',
-  'George Washington Carver National Monument',
-  'Gila Cliff Dwellings National Monument',
-  'Giant Sequoia National Monument',
-  'Gold Butte National Monument',
-  'Governors Island National Monument',
-  'Grand Canyon–Parashant National Monument',
-  'Grand Portage National Monument',
-  'Grand Staircase–Escalante National Monument',
-  'Hagerman Fossil Beds National Monument',
-  'Hanford Reach National Monument',
-  'Harriet Tubman Underground Railroad National Monument',
-  'Hohokam Pima National Monument',
-  'Hovenweep National Monument',
-  'Ironwood Forest National Monument',
-  'Jewel Cave National Monument',
-  'Jurassic National Monument',
-  'Kasha‑Katuwe Tent Rocks National Monument',
-  'Katahdin Woods and Waters National Monument',
-  'Lava Beds National Monument',
-  'Little Bighorn Battlefield National Monument',
-  'Marianas Trench Marine National Monument',
-  'Medgar and Myrlie Evers Home National Monument',
-  'Military Working Dog Teams National Monument',
-  'Mill Springs Battlefield National Monument',
-  'Misty Fjords National Monument',
-  'Mojave Trails National Monument',
-  'Montezuma Castle National Monument',
-  'Mount St. Helens Volcanic National Monument',
-  'Muir Woods National Monument',
-  'Natural Bridges National Monument',
-  'Navajo National Monument',
-  'Newberry Volcanic National Monument',
-  'Northeast Canyons and Seamounts Marine National Monument',
-  'Oregon Caves National Monument',
-  'Organ Mountains–Desert Peaks National Monument',
-  'Organ Pipe Cactus National Monument',
-  'Pacific Islands Heritage Marine National Monument',
-  'Papahānaumokuākea Marine National Monument',
-  'Petroglyph National Monument',
-  'Pipe Spring National Monument',
-  'Pipestone National Monument',
-  'Pompeys Pillar National Monument',
-  'Poverty Point National Monument',
-  'Prehistoric Trackways National Monument',
-  'President Lincoln and Soldiers\' Home National Monument',
-  'Rainbow Bridge National Monument',
-  'Río Grande del Norte National Monument',
-  'Rose Atoll Marine National Monument',
-  'Russell Cave National Monument',
-  'Saint Francis Dam Disaster National Monument',
-  'Salinas Pueblo Missions National Monument',
-  'San Gabriel Mountains National Monument',
-  'San Juan Islands National Monument',
-  'Sand to Snow National Monument',
-  'Santa Rosa and San Jacinto Mountains National Monument',
-  'Sáttítla Highlands National Monument',
-  'Scotts Bluff National Monument',
-  'Sonoran Desert National Monument',
-  'Springfield 1908 Race Riot National Monument',
-  'Statue of Liberty National Monument',
-  'Stonewall National Monument',
-  'Sunset Crater Volcano National Monument',
-  'Timpanogos Cave National Monument',
-  'Tonto National Monument',
-  'Tule Lake National Monument',
-  'Tule Springs Fossil Beds National Monument',
-  'Tuzigoot National Monument',
-  'Upper Missouri River Breaks National Monument',
-  'Vermilion Cliffs National Monument',
-  'Virgin Islands Coral Reef National Monument',
-  'Waco Mammoth National Monument',
-  'Walnut Canyon National Monument',
-  'Wupatki National Monument',
-  'Yucca House National Monument',
-]
-
-function getFederalSiteType(siteName: string): 'national-park' | 'national-monument' | null {
-  const normalizedName = siteName.toLowerCase().trim()
-  
-  if (NATIONAL_PARKS.some(np => normalizedName.includes(np.toLowerCase()))) {
-    return 'national-park'
-  }
-  
-  if (NATIONAL_MONUMENTS.some(nm => normalizedName.includes(nm.toLowerCase()))) {
-    return 'national-monument'
-  }
-  
-  return null
-}
 
 function Recenter({ center }: { center: LatLng }) {
   const map = useMap()
@@ -323,7 +111,6 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
     if (!map) return
 
     let timeoutId: NodeJS.Timeout
-    let searchId = 0
     let retryCount = 0
 
     const searchParks = () => {
@@ -338,99 +125,74 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
         return
       }
 
-      const currentSearchId = ++searchId
-
       const center = {
         lat: mapCenter.lat(),
         lng: mapCenter.lng(),
       }
 
-      const ne = bounds.getNorthEast()
-      const distanceToCorner = google.maps.geometry.spherical.computeDistanceBetween(
-        mapCenter,
-        ne
-      )
-      
-      const radius = Math.min(50000, distanceToCorner)
-
-      console.info('Parks search:', {
+      console.info('Viewport search:', {
         center: center,
         zoom: map.getZoom(),
-        bounds: bounds.toUrlValue(),
-        radius: Math.round(radius)
+        bounds: bounds.toUrlValue()
       })
 
-      const service = new google.maps.places.PlacesService(map)
-      
-      const request = {
-        location: center,
-        radius: radius,
-        type: 'park',
-        keyword: 'park',
-      }
+      const allSites: Park[] = []
 
-      service.nearbySearch(request, (results, status) => {
-        if (currentSearchId !== searchId) return
+      federalSitesData.nationalParks.forEach((park: any) => {
+        const location = { lat: park.lat, lng: park.lng }
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          new google.maps.LatLng(center.lat, center.lng),
+          new google.maps.LatLng(location.lat, location.lng)
+        ) / 1609.34
 
-        console.info('Places API response:', {
-          status: status,
-          resultsCount: results?.length || 0
+        allSites.push({
+          id: `np-${park.name}`,
+          name: park.name,
+          location,
+          type: 'national-park',
+          address: park.state || '',
+          distance: Math.round(distance * 10) / 10,
+          state: park.state
         })
-
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const allParks: Park[] = results
-            .filter((place) => {
-              const name = place.name || ''
-              return getFederalSiteType(name) !== null
-            })
-            .map((place) => {
-            const name = place.name || 'Unknown Park'
-            const siteType = getFederalSiteType(name)
-            const type: 'local' | 'state' | 'national-park' | 'national-monument' = siteType || 'local'
-
-            const location = {
-              lat: place.geometry?.location?.lat() || 0,
-              lng: place.geometry?.location?.lng() || 0,
-            }
-
-            const distance = google.maps.geometry.spherical.computeDistanceBetween(
-              new google.maps.LatLng(center.lat, center.lng),
-              new google.maps.LatLng(location.lat, location.lng)
-            ) / 1609.34
-
-            return {
-              id: place.place_id || Math.random().toString(),
-              name,
-              location,
-              type,
-              address: place.vicinity || '',
-              distance: Math.round(distance * 10) / 10,
-            }
-          })
-
-          const visibleParks = allParks.filter((park) => {
-            const parkLatLng = new google.maps.LatLng(park.location.lat, park.location.lng)
-            return bounds.contains(parkLatLng)
-          }).sort((a, b) => a.distance - b.distance)
-
-          console.info('Parks filtered:', {
-            total: allParks.length,
-            visible: visibleParks.length
-          })
-
-          onParksFound(visibleParks)
-          onError('')
-        } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-          onParksFound([])
-          onError('No National Parks or Monuments found in this area. Try zooming out or moving the map.')
-        } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
-          onParksFound([])
-          onError('Places API access denied. Please check API key restrictions.')
-        } else {
-          onParksFound([])
-          onError(`Places API error: ${status}`)
-        }
       })
+
+      federalSitesData.nationalMonuments.forEach((monument: any) => {
+        const location = { lat: monument.lat, lng: monument.lng }
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          new google.maps.LatLng(center.lat, center.lng),
+          new google.maps.LatLng(location.lat, location.lng)
+        ) / 1609.34
+
+        allSites.push({
+          id: `nm-${monument.name}`,
+          name: monument.name,
+          location,
+          type: 'national-monument',
+          address: monument.state || '',
+          distance: Math.round(distance * 10) / 10,
+          state: monument.state
+        })
+      })
+
+      const visibleSites = allSites.filter((site) => {
+        const siteLatLng = new google.maps.LatLng(site.location.lat, site.location.lng)
+        return bounds.contains(siteLatLng)
+      }).sort((a, b) => a.distance - b.distance)
+
+      console.info('Sites filtered:', {
+        totalParks: federalSitesData.nationalParks.length,
+        totalMonuments: federalSitesData.nationalMonuments.length,
+        totalSites: allSites.length,
+        visibleInViewport: visibleSites.length
+      })
+
+      onParksFound(visibleSites)
+      
+      if (visibleSites.length === 0) {
+        onError('No National Parks or Monuments in this area. Pan or zoom to explore different regions.')
+      } else {
+        onError('')
+      }
     }
 
     const handleIdle = () => {

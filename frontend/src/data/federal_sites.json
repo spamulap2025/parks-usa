@@ -1,0 +1,1200 @@
+{
+  "nationalParks": [
+    {
+      "name": "Acadia National Park",
+      "state": "Maine",
+      "lat": 44.35,
+      "lng": -68.21
+    },
+    {
+      "name": "Arches National Park",
+      "state": "Utah",
+      "lat": 38.68,
+      "lng": -109.57
+    },
+    {
+      "name": "Badlands National Park",
+      "state": "South Dakota",
+      "lat": 43.75,
+      "lng": -102.5
+    },
+    {
+      "name": "Big Bend National Park",
+      "state": "Texas",
+      "lat": 29.25,
+      "lng": -103.25
+    },
+    {
+      "name": "Biscayne National Park",
+      "state": "Florida",
+      "lat": 25.65,
+      "lng": -80.08
+    },
+    {
+      "name": "Black Canyon of the Gunnison National Park",
+      "state": "Colorado",
+      "lat": 38.57,
+      "lng": -107.72
+    },
+    {
+      "name": "Bryce Canyon National Park",
+      "state": "Utah",
+      "lat": 37.57,
+      "lng": -112.18
+    },
+    {
+      "name": "Canyonlands National Park",
+      "state": "Utah",
+      "lat": 38.2,
+      "lng": -109.93
+    },
+    {
+      "name": "Capitol Reef National Park",
+      "state": "Utah",
+      "lat": 38.2,
+      "lng": -111.17
+    },
+    {
+      "name": "Carlsbad Caverns National Park",
+      "state": "New Mexico",
+      "lat": 32.17,
+      "lng": -104.44
+    },
+    {
+      "name": "Channel Islands National Park",
+      "state": "California",
+      "lat": 34.01,
+      "lng": -119.42
+    },
+    {
+      "name": "Congaree National Park",
+      "state": "South Carolina",
+      "lat": 33.78,
+      "lng": -80.78
+    },
+    {
+      "name": "Crater Lake National Park",
+      "state": "Oregon",
+      "lat": 42.94,
+      "lng": -122.11
+    },
+    {
+      "name": "Cuyahoga Valley National Park",
+      "state": "Ohio",
+      "lat": 41.24,
+      "lng": -81.55
+    },
+    {
+      "name": "Death Valley National Park",
+      "state": "California",
+      "lat": 36.24,
+      "lng": -116.82
+    },
+    {
+      "name": "Denali National Park",
+      "state": "Alaska",
+      "lat": 63.33,
+      "lng": -150.5
+    },
+    {
+      "name": "Dry Tortugas National Park",
+      "state": "Florida",
+      "lat": 24.63,
+      "lng": -82.87
+    },
+    {
+      "name": "Everglades National Park",
+      "state": "Florida",
+      "lat": 25.32,
+      "lng": -80.93
+    },
+    {
+      "name": "Gates of the Arctic National Park",
+      "state": "Alaska",
+      "lat": 67.78,
+      "lng": -153.3
+    },
+    {
+      "name": "Gateway Arch National Park",
+      "state": "Missouri",
+      "lat": 38.62,
+      "lng": -90.18
+    },
+    {
+      "name": "Glacier National Park",
+      "state": "Montana",
+      "lat": 48.8,
+      "lng": -114.0
+    },
+    {
+      "name": "Glacier Bay National Park",
+      "state": "Alaska",
+      "lat": 58.5,
+      "lng": -137.0
+    },
+    {
+      "name": "Grand Canyon National Park",
+      "state": "Arizona",
+      "lat": 36.06,
+      "lng": -112.14
+    },
+    {
+      "name": "Grand Teton National Park",
+      "state": "Wyoming",
+      "lat": 43.79,
+      "lng": -110.68
+    },
+    {
+      "name": "Great Basin National Park",
+      "state": "Nevada",
+      "lat": 38.98,
+      "lng": -114.3
+    },
+    {
+      "name": "Great Sand Dunes National Park",
+      "state": "Colorado",
+      "lat": 37.73,
+      "lng": -105.51
+    },
+    {
+      "name": "Great Smoky Mountains National Park",
+      "state": "Tennessee",
+      "lat": 35.68,
+      "lng": -83.53
+    },
+    {
+      "name": "Guadalupe Mountains National Park",
+      "state": "Texas",
+      "lat": 31.92,
+      "lng": -104.87
+    },
+    {
+      "name": "Haleakal\u0101 National Park",
+      "state": "Hawaii",
+      "lat": 20.72,
+      "lng": -156.17
+    },
+    {
+      "name": "Hawai\u02bbi Volcanoes National Park",
+      "state": "Hawaii",
+      "lat": 19.38,
+      "lng": -155.2
+    },
+    {
+      "name": "Hot Springs National Park",
+      "state": "Arkansas",
+      "lat": 34.52,
+      "lng": -93.05
+    },
+    {
+      "name": "Indiana Dunes National Park",
+      "state": "Indiana",
+      "lat": 41.65,
+      "lng": -87.05
+    },
+    {
+      "name": "Isle Royale National Park",
+      "state": "Michigan",
+      "lat": 47.99,
+      "lng": -88.91
+    },
+    {
+      "name": "Joshua Tree National Park",
+      "state": "California",
+      "lat": 33.87,
+      "lng": -115.9
+    },
+    {
+      "name": "Katmai National Park",
+      "state": "Alaska",
+      "lat": 58.5,
+      "lng": -155.0
+    },
+    {
+      "name": "Kenai Fjords National Park",
+      "state": "Alaska",
+      "lat": 59.92,
+      "lng": -149.65
+    },
+    {
+      "name": "Kings Canyon National Park",
+      "state": "California",
+      "lat": 36.8,
+      "lng": -118.55
+    },
+    {
+      "name": "Kobuk Valley National Park",
+      "state": "Alaska",
+      "lat": 67.55,
+      "lng": -159.28
+    },
+    {
+      "name": "Lake Clark National Park",
+      "state": "Alaska",
+      "lat": 60.97,
+      "lng": -153.42
+    },
+    {
+      "name": "Lassen Volcanic National Park",
+      "state": "California",
+      "lat": 40.49,
+      "lng": -121.51
+    },
+    {
+      "name": "Mammoth Cave National Park",
+      "state": "Kentucky",
+      "lat": 37.19,
+      "lng": -86.1
+    },
+    {
+      "name": "Mesa Verde National Park",
+      "state": "Colorado",
+      "lat": 37.18,
+      "lng": -108.49
+    },
+    {
+      "name": "Mount Rainier National Park",
+      "state": "Washington",
+      "lat": 46.85,
+      "lng": -121.75
+    },
+    {
+      "name": "New River Gorge National Park",
+      "state": "West Virginia",
+      "lat": 37.97,
+      "lng": -81.07
+    },
+    {
+      "name": "North Cascades National Park",
+      "state": "Washington",
+      "lat": 48.7,
+      "lng": -121.2
+    },
+    {
+      "name": "Olympic National Park",
+      "state": "Washington",
+      "lat": 47.8,
+      "lng": -123.6
+    },
+    {
+      "name": "Petrified Forest National Park",
+      "state": "Arizona",
+      "lat": 34.91,
+      "lng": -109.78
+    },
+    {
+      "name": "Pinnacles National Park",
+      "state": "California",
+      "lat": 36.48,
+      "lng": -121.16
+    },
+    {
+      "name": "Redwood National Park",
+      "state": "California",
+      "lat": 41.3,
+      "lng": -124.0
+    },
+    {
+      "name": "Rocky Mountain National Park",
+      "state": "Colorado",
+      "lat": 40.4,
+      "lng": -105.58
+    },
+    {
+      "name": "Saguaro National Park",
+      "state": "Arizona",
+      "lat": 32.25,
+      "lng": -110.5
+    },
+    {
+      "name": "Sequoia National Park",
+      "state": "California",
+      "lat": 36.43,
+      "lng": -118.68
+    },
+    {
+      "name": "Shenandoah National Park",
+      "state": "Virginia",
+      "lat": 38.53,
+      "lng": -78.35
+    },
+    {
+      "name": "Theodore Roosevelt National Park",
+      "state": "North Dakota",
+      "lat": 46.97,
+      "lng": -103.45
+    },
+    {
+      "name": "Virgin Islands National Park",
+      "state": "U.S. Virgin Islands",
+      "lat": 18.34,
+      "lng": -64.73
+    },
+    {
+      "name": "Voyageurs National Park",
+      "state": "Minnesota",
+      "lat": 48.5,
+      "lng": -92.88
+    },
+    {
+      "name": "White Sands National Park",
+      "state": "New Mexico",
+      "lat": 32.78,
+      "lng": -106.17
+    },
+    {
+      "name": "Wind Cave National Park",
+      "state": "South Dakota",
+      "lat": 43.57,
+      "lng": -103.48
+    },
+    {
+      "name": "Wrangell-St. Elias National Park",
+      "state": "Alaska",
+      "lat": 61.0,
+      "lng": -142.0
+    },
+    {
+      "name": "Yellowstone National Park",
+      "state": "Wyoming",
+      "lat": 44.6,
+      "lng": -110.5
+    },
+    {
+      "name": "Yosemite National Park",
+      "state": "California",
+      "lat": 37.83,
+      "lng": -119.5
+    },
+    {
+      "name": "Zion National Park",
+      "state": "Utah",
+      "lat": 37.3,
+      "lng": -113.05
+    },
+    {
+      "name": "National Park of American Samoa",
+      "state": "American Samoa",
+      "lat": -14.25,
+      "lng": -170.68
+    }
+  ],
+  "nationalMonuments": [
+    {
+      "name": "Admiralty Island National Monument",
+      "state": "Alaska",
+      "lat": 57.42,
+      "lng": -134.33
+    },
+    {
+      "name": "African Burial Ground National Monument",
+      "state": "New York",
+      "lat": 40.71,
+      "lng": -74.0
+    },
+    {
+      "name": "Agate Fossil Beds National Monument",
+      "state": "Nebraska",
+      "lat": 42.42,
+      "lng": -103.73
+    },
+    {
+      "name": "Agua Fria National Monument",
+      "state": "Arizona",
+      "lat": 34.08,
+      "lng": -112.08
+    },
+    {
+      "name": "Aleutian Islands World War II National Monument",
+      "state": "Alaska",
+      "lat": 53.9,
+      "lng": -166.53
+    },
+    {
+      "name": "Alibates Flint Quarries National Monument",
+      "state": "Texas",
+      "lat": 35.57,
+      "lng": -101.68
+    },
+    {
+      "name": "Aniakchak National Monument",
+      "state": "Alaska",
+      "lat": 56.9,
+      "lng": -158.15
+    },
+    {
+      "name": "Aztec Ruins National Monument",
+      "state": "New Mexico",
+      "lat": 36.84,
+      "lng": -107.99
+    },
+    {
+      "name": "Bandelier National Monument",
+      "state": "New Mexico",
+      "lat": 35.78,
+      "lng": -106.27
+    },
+    {
+      "name": "Booker T. Washington National Monument",
+      "state": "Virginia",
+      "lat": 37.12,
+      "lng": -79.73
+    },
+    {
+      "name": "Buck Island Reef National Monument",
+      "state": "U.S. Virgin Islands",
+      "lat": 17.79,
+      "lng": -64.62
+    },
+    {
+      "name": "Cabrillo National Monument",
+      "state": "California",
+      "lat": 32.67,
+      "lng": -117.24
+    },
+    {
+      "name": "Canyon de Chelly National Monument",
+      "state": "Arizona",
+      "lat": 36.15,
+      "lng": -109.53
+    },
+    {
+      "name": "Canyons of the Ancients National Monument",
+      "state": "Colorado",
+      "lat": 37.38,
+      "lng": -108.78
+    },
+    {
+      "name": "Cape Krusenstern National Monument",
+      "state": "Alaska",
+      "lat": 67.42,
+      "lng": -163.5
+    },
+    {
+      "name": "Capulin Volcano National Monument",
+      "state": "New Mexico",
+      "lat": 36.78,
+      "lng": -103.97
+    },
+    {
+      "name": "Casa Grande Ruins National Monument",
+      "state": "Arizona",
+      "lat": 32.99,
+      "lng": -111.54
+    },
+    {
+      "name": "Castillo de San Marcos National Monument",
+      "state": "Florida",
+      "lat": 29.9,
+      "lng": -81.31
+    },
+    {
+      "name": "Castle Clinton National Monument",
+      "state": "New York",
+      "lat": 40.7,
+      "lng": -74.02
+    },
+    {
+      "name": "Castle Mountains National Monument",
+      "state": "California",
+      "lat": 35.29,
+      "lng": -115.09
+    },
+    {
+      "name": "Cedar Breaks National Monument",
+      "state": "Utah",
+      "lat": 37.63,
+      "lng": -112.85
+    },
+    {
+      "name": "C\u00e9sar E. Ch\u00e1vez National Monument",
+      "state": "California",
+      "lat": 35.22,
+      "lng": -118.56
+    },
+    {
+      "name": "Chiricahua National Monument",
+      "state": "Arizona",
+      "lat": 32.01,
+      "lng": -109.34
+    },
+    {
+      "name": "Colorado National Monument",
+      "state": "Colorado",
+      "lat": 39.04,
+      "lng": -108.73
+    },
+    {
+      "name": "Craters of the Moon National Monument",
+      "state": "Idaho",
+      "lat": 43.42,
+      "lng": -113.52
+    },
+    {
+      "name": "Devils Postpile National Monument",
+      "state": "California",
+      "lat": 37.63,
+      "lng": -119.09
+    },
+    {
+      "name": "Devils Tower National Monument",
+      "state": "Wyoming",
+      "lat": 44.59,
+      "lng": -104.71
+    },
+    {
+      "name": "Dinosaur National Monument",
+      "state": "Colorado",
+      "lat": 40.43,
+      "lng": -109.3
+    },
+    {
+      "name": "Effigy Mounds National Monument",
+      "state": "Iowa",
+      "lat": 43.08,
+      "lng": -91.19
+    },
+    {
+      "name": "El Malpais National Monument",
+      "state": "New Mexico",
+      "lat": 34.88,
+      "lng": -108.05
+    },
+    {
+      "name": "El Morro National Monument",
+      "state": "New Mexico",
+      "lat": 35.04,
+      "lng": -108.35
+    },
+    {
+      "name": "Florissant Fossil Beds National Monument",
+      "state": "Colorado",
+      "lat": 38.91,
+      "lng": -105.28
+    },
+    {
+      "name": "Fort Frederica National Monument",
+      "state": "Georgia",
+      "lat": 31.22,
+      "lng": -81.39
+    },
+    {
+      "name": "Fort Matanzas National Monument",
+      "state": "Florida",
+      "lat": 29.72,
+      "lng": -81.24
+    },
+    {
+      "name": "Fort McHenry National Monument",
+      "state": "Maryland",
+      "lat": 39.26,
+      "lng": -76.58
+    },
+    {
+      "name": "Fort Pulaski National Monument",
+      "state": "Georgia",
+      "lat": 32.03,
+      "lng": -80.89
+    },
+    {
+      "name": "Fort Stanwix National Monument",
+      "state": "New York",
+      "lat": 43.21,
+      "lng": -75.46
+    },
+    {
+      "name": "Fort Union National Monument",
+      "state": "New Mexico",
+      "lat": 35.92,
+      "lng": -105.01
+    },
+    {
+      "name": "Fossil Butte National Monument",
+      "state": "Wyoming",
+      "lat": 41.86,
+      "lng": -110.77
+    },
+    {
+      "name": "George Washington Birthplace National Monument",
+      "state": "Virginia",
+      "lat": 38.19,
+      "lng": -76.93
+    },
+    {
+      "name": "George Washington Carver National Monument",
+      "state": "Missouri",
+      "lat": 36.98,
+      "lng": -94.35
+    },
+    {
+      "name": "Gila Cliff Dwellings National Monument",
+      "state": "New Mexico",
+      "lat": 33.23,
+      "lng": -108.27
+    },
+    {
+      "name": "Grand Portage National Monument",
+      "state": "Minnesota",
+      "lat": 47.96,
+      "lng": -89.69
+    },
+    {
+      "name": "Grand Staircase\u2013Escalante National Monument",
+      "state": "Utah",
+      "lat": 37.4,
+      "lng": -111.6
+    },
+    {
+      "name": "Hagerman Fossil Beds National Monument",
+      "state": "Idaho",
+      "lat": 42.79,
+      "lng": -114.95
+    },
+    {
+      "name": "Hohokam Pima National Monument",
+      "state": "Arizona",
+      "lat": 33.23,
+      "lng": -112.0
+    },
+    {
+      "name": "Hovenweep National Monument",
+      "state": "Utah",
+      "lat": 37.38,
+      "lng": -109.08
+    },
+    {
+      "name": "Ironwood Forest National Monument",
+      "state": "Arizona",
+      "lat": 32.48,
+      "lng": -111.55
+    },
+    {
+      "name": "Jewel Cave National Monument",
+      "state": "South Dakota",
+      "lat": 43.73,
+      "lng": -103.83
+    },
+    {
+      "name": "Lava Beds National Monument",
+      "state": "California",
+      "lat": 41.71,
+      "lng": -121.51
+    },
+    {
+      "name": "Little Bighorn Battlefield National Monument",
+      "state": "Montana",
+      "lat": 45.57,
+      "lng": -107.43
+    },
+    {
+      "name": "Montezuma Castle National Monument",
+      "state": "Arizona",
+      "lat": 34.61,
+      "lng": -111.84
+    },
+    {
+      "name": "Mount St. Helens Volcanic National Monument",
+      "state": "Washington",
+      "lat": 46.2,
+      "lng": -122.18
+    },
+    {
+      "name": "Muir Woods National Monument",
+      "state": "California",
+      "lat": 37.9,
+      "lng": -122.58
+    },
+    {
+      "name": "Natural Bridges National Monument",
+      "state": "Utah",
+      "lat": 37.6,
+      "lng": -109.99
+    },
+    {
+      "name": "Navajo National Monument",
+      "state": "Arizona",
+      "lat": 36.68,
+      "lng": -110.53
+    },
+    {
+      "name": "Newberry Volcanic National Monument",
+      "state": "Oregon",
+      "lat": 43.68,
+      "lng": -121.23
+    },
+    {
+      "name": "Ocmulgee Mounds National Monument",
+      "state": "Georgia",
+      "lat": 32.84,
+      "lng": -83.61
+    },
+    {
+      "name": "Oregon Caves National Monument",
+      "state": "Oregon",
+      "lat": 42.1,
+      "lng": -123.41
+    },
+    {
+      "name": "Organ Pipe Cactus National Monument",
+      "state": "Arizona",
+      "lat": 32.03,
+      "lng": -112.8
+    },
+    {
+      "name": "Petroglyph National Monument",
+      "state": "New Mexico",
+      "lat": 35.14,
+      "lng": -106.76
+    },
+    {
+      "name": "Pipe Spring National Monument",
+      "state": "Arizona",
+      "lat": 36.86,
+      "lng": -112.74
+    },
+    {
+      "name": "Pipestone National Monument",
+      "state": "Minnesota",
+      "lat": 44.01,
+      "lng": -96.33
+    },
+    {
+      "name": "Pompeys Pillar National Monument",
+      "state": "Montana",
+      "lat": 45.99,
+      "lng": -108.0
+    },
+    {
+      "name": "Poverty Point National Monument",
+      "state": "Louisiana",
+      "lat": 32.64,
+      "lng": -91.41
+    },
+    {
+      "name": "Rainbow Bridge National Monument",
+      "state": "Utah",
+      "lat": 37.08,
+      "lng": -110.96
+    },
+    {
+      "name": "Russell Cave National Monument",
+      "state": "Alabama",
+      "lat": 34.98,
+      "lng": -85.81
+    },
+    {
+      "name": "Salinas Pueblo Missions National Monument",
+      "state": "New Mexico",
+      "lat": 34.26,
+      "lng": -106.06
+    },
+    {
+      "name": "Scotts Bluff National Monument",
+      "state": "Nebraska",
+      "lat": 41.83,
+      "lng": -103.7
+    },
+    {
+      "name": "Statue of Liberty National Monument",
+      "state": "New York",
+      "lat": 40.69,
+      "lng": -74.04
+    },
+    {
+      "name": "Sunset Crater Volcano National Monument",
+      "state": "Arizona",
+      "lat": 35.37,
+      "lng": -111.5
+    },
+    {
+      "name": "Timpanogos Cave National Monument",
+      "state": "Utah",
+      "lat": 40.44,
+      "lng": -111.71
+    },
+    {
+      "name": "Tonto National Monument",
+      "state": "Arizona",
+      "lat": 33.65,
+      "lng": -111.11
+    },
+    {
+      "name": "Tuzigoot National Monument",
+      "state": "Arizona",
+      "lat": 34.77,
+      "lng": -112.03
+    },
+    {
+      "name": "Walnut Canyon National Monument",
+      "state": "Arizona",
+      "lat": 35.17,
+      "lng": -111.51
+    },
+    {
+      "name": "Wupatki National Monument",
+      "state": "Arizona",
+      "lat": 35.52,
+      "lng": -111.37
+    },
+    {
+      "name": "Yucca House National Monument",
+      "state": "Colorado",
+      "lat": 37.25,
+      "lng": -108.69
+    },
+    {
+      "name": "Avi Kwa Ame National Monument",
+      "state": "Nevada",
+      "lat": 35.62,
+      "lng": -114.78
+    },
+    {
+      "name": "Baaj Nwaavjo I'tah Kukveni \u2013 Ancestral Footprints of the Grand Canyon National Monument",
+      "state": "Arizona",
+      "lat": 36.2,
+      "lng": -112.5
+    },
+    {
+      "name": "Basin and Range National Monument",
+      "state": "Nevada",
+      "lat": 38.5,
+      "lng": -115.25
+    },
+    {
+      "name": "Bears Ears National Monument",
+      "state": "Utah",
+      "lat": 37.6,
+      "lng": -109.85
+    },
+    {
+      "name": "Belmont\u2011Paul Women's Equality National Monument",
+      "state": "Washington D.C.",
+      "lat": 38.89,
+      "lng": -77.0
+    },
+    {
+      "name": "Berryessa Snow Mountain National Monument",
+      "state": "California",
+      "lat": 39.17,
+      "lng": -122.6
+    },
+    {
+      "name": "Birmingham Civil Rights National Monument",
+      "state": "Alabama",
+      "lat": 33.52,
+      "lng": -86.81
+    },
+    {
+      "name": "Browns Canyon National Monument",
+      "state": "Colorado",
+      "lat": 38.65,
+      "lng": -106.05
+    },
+    {
+      "name": "California Coastal National Monument",
+      "state": "California",
+      "lat": 39.0,
+      "lng": -123.8
+    },
+    {
+      "name": "Camp Hale \u2014 Continental Divide National Monument",
+      "state": "Colorado",
+      "lat": 39.45,
+      "lng": -106.3
+    },
+    {
+      "name": "Camp Nelson National Monument",
+      "state": "Kentucky",
+      "lat": 37.8,
+      "lng": -84.6
+    },
+    {
+      "name": "Carlisle Federal Indian Boarding School National Monument",
+      "state": "Pennsylvania",
+      "lat": 40.2,
+      "lng": -77.19
+    },
+    {
+      "name": "Carrizo Plain National Monument",
+      "state": "California",
+      "lat": 35.18,
+      "lng": -119.68
+    },
+    {
+      "name": "Castner Range National Monument",
+      "state": "Texas",
+      "lat": 31.88,
+      "lng": -106.35
+    },
+    {
+      "name": "Charles Young Buffalo Soldiers National Monument",
+      "state": "Ohio",
+      "lat": 39.71,
+      "lng": -83.89
+    },
+    {
+      "name": "Chimney Rock National Monument",
+      "state": "Colorado",
+      "lat": 37.18,
+      "lng": -107.3
+    },
+    {
+      "name": "Chuckwalla National Monument",
+      "state": "California",
+      "lat": 33.7,
+      "lng": -115.15
+    },
+    {
+      "name": "Emmett Till and Mamie Till\u2011Mobley National Monument",
+      "state": "Illinois",
+      "lat": 41.7,
+      "lng": -87.63
+    },
+    {
+      "name": "Fort Monroe National Monument",
+      "state": "Virginia",
+      "lat": 37.0,
+      "lng": -76.31
+    },
+    {
+      "name": "Frances Perkins National Monument",
+      "state": "Maine",
+      "lat": 43.97,
+      "lng": -69.63
+    },
+    {
+      "name": "Freedom Riders National Monument",
+      "state": "Alabama",
+      "lat": 33.66,
+      "lng": -85.83
+    },
+    {
+      "name": "Giant Sequoia National Monument",
+      "state": "California",
+      "lat": 36.05,
+      "lng": -118.75
+    },
+    {
+      "name": "Gold Butte National Monument",
+      "state": "Nevada",
+      "lat": 36.35,
+      "lng": -114.2
+    },
+    {
+      "name": "Governors Island National Monument",
+      "state": "New York",
+      "lat": 40.69,
+      "lng": -74.02
+    },
+    {
+      "name": "Grand Canyon\u2013Parashant National Monument",
+      "state": "Arizona",
+      "lat": 36.4,
+      "lng": -113.7
+    },
+    {
+      "name": "Hanford Reach National Monument",
+      "state": "Washington",
+      "lat": 46.6,
+      "lng": -119.53
+    },
+    {
+      "name": "Harriet Tubman Underground Railroad National Monument",
+      "state": "Maryland",
+      "lat": 38.45,
+      "lng": -76.14
+    },
+    {
+      "name": "Jurassic National Monument",
+      "state": "Utah",
+      "lat": 39.32,
+      "lng": -109.3
+    },
+    {
+      "name": "Kasha\u2011Katuwe Tent Rocks National Monument",
+      "state": "New Mexico",
+      "lat": 35.67,
+      "lng": -106.42
+    },
+    {
+      "name": "Katahdin Woods and Waters National Monument",
+      "state": "Maine",
+      "lat": 45.97,
+      "lng": -68.6
+    },
+    {
+      "name": "Marianas Trench Marine National Monument",
+      "state": "Northern Mariana Islands",
+      "lat": 20.0,
+      "lng": 145.0
+    },
+    {
+      "name": "Medgar and Myrlie Evers Home National Monument",
+      "state": "Mississippi",
+      "lat": 32.34,
+      "lng": -90.21
+    },
+    {
+      "name": "Military Working Dog Teams National Monument",
+      "state": "Texas",
+      "lat": 29.38,
+      "lng": -98.62
+    },
+    {
+      "name": "Mill Springs Battlefield National Monument",
+      "state": "Kentucky",
+      "lat": 37.08,
+      "lng": -84.73
+    },
+    {
+      "name": "Misty Fjords National Monument",
+      "state": "Alaska",
+      "lat": 55.75,
+      "lng": -130.53
+    },
+    {
+      "name": "Mojave Trails National Monument",
+      "state": "California",
+      "lat": 34.55,
+      "lng": -115.5
+    },
+    {
+      "name": "Northeast Canyons and Seamounts Marine National Monument",
+      "state": "Atlantic Ocean",
+      "lat": 40.0,
+      "lng": -68.0
+    },
+    {
+      "name": "Organ Mountains\u2013Desert Peaks National Monument",
+      "state": "New Mexico",
+      "lat": 32.35,
+      "lng": -106.6
+    },
+    {
+      "name": "Pacific Islands Heritage Marine National Monument",
+      "state": "Pacific Ocean",
+      "lat": 16.73,
+      "lng": -169.52
+    },
+    {
+      "name": "Papah\u0101naumoku\u0101kea Marine National Monument",
+      "state": "Hawaii",
+      "lat": 25.7,
+      "lng": -171.73
+    },
+    {
+      "name": "Prehistoric Trackways National Monument",
+      "state": "New Mexico",
+      "lat": 32.38,
+      "lng": -106.9
+    },
+    {
+      "name": "President Lincoln and Soldiers' Home National Monument",
+      "state": "Washington D.C.",
+      "lat": 38.94,
+      "lng": -77.01
+    },
+    {
+      "name": "R\u00edo Grande del Norte National Monument",
+      "state": "New Mexico",
+      "lat": 36.75,
+      "lng": -105.73
+    },
+    {
+      "name": "Rose Atoll Marine National Monument",
+      "state": "American Samoa",
+      "lat": -14.55,
+      "lng": -168.15
+    },
+    {
+      "name": "Saint Francis Dam Disaster National Monument",
+      "state": "California",
+      "lat": 34.55,
+      "lng": -118.51
+    },
+    {
+      "name": "San Gabriel Mountains National Monument",
+      "state": "California",
+      "lat": 34.3,
+      "lng": -117.85
+    },
+    {
+      "name": "San Juan Islands National Monument",
+      "state": "Washington",
+      "lat": 48.53,
+      "lng": -123.0
+    },
+    {
+      "name": "Sand to Snow National Monument",
+      "state": "California",
+      "lat": 34.08,
+      "lng": -116.7
+    },
+    {
+      "name": "Santa Rosa and San Jacinto Mountains National Monument",
+      "state": "California",
+      "lat": 33.8,
+      "lng": -116.7
+    },
+    {
+      "name": "S\u00e1tt\u00edtla Highlands National Monument",
+      "state": "California",
+      "lat": 41.5,
+      "lng": -122.8
+    },
+    {
+      "name": "Sonoran Desert National Monument",
+      "state": "Arizona",
+      "lat": 32.95,
+      "lng": -112.45
+    },
+    {
+      "name": "Springfield 1908 Race Riot National Monument",
+      "state": "Illinois",
+      "lat": 39.8,
+      "lng": -89.65
+    },
+    {
+      "name": "Stonewall National Monument",
+      "state": "New York",
+      "lat": 40.73,
+      "lng": -74.0
+    },
+    {
+      "name": "Tule Lake National Monument",
+      "state": "California",
+      "lat": 41.89,
+      "lng": -121.37
+    },
+    {
+      "name": "Tule Springs Fossil Beds National Monument",
+      "state": "Nevada",
+      "lat": 36.32,
+      "lng": -115.25
+    },
+    {
+      "name": "Upper Missouri River Breaks National Monument",
+      "state": "Montana",
+      "lat": 47.83,
+      "lng": -108.25
+    },
+    {
+      "name": "Vermilion Cliffs National Monument",
+      "state": "Arizona",
+      "lat": 36.82,
+      "lng": -111.74
+    },
+    {
+      "name": "Virgin Islands Coral Reef National Monument",
+      "state": "U.S. Virgin Islands",
+      "lat": 17.75,
+      "lng": -64.7
+    },
+    {
+      "name": "Waco Mammoth National Monument",
+      "state": "Texas",
+      "lat": 31.61,
+      "lng": -97.17
+    }
+  ]
+}
