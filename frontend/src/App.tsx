@@ -16,90 +16,10 @@ interface User {
 }
 
 function App() {
-  const [loginUsername, setLoginUsername] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [registerUsername, setRegisterUsername] = useState('')
-  const [registerEmail, setRegisterEmail] = useState('')
-  const [registerPassword, setRegisterPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-    setLoading(true)
-
-    try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: loginUsername,
-          password: loginPassword,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.detail || 'Login failed')
-        setLoading(false)
-        return
-      }
-
-      setSuccess('Login successful!')
-      setLoggedInUser(data.user)
-      setLoginUsername('')
-      setLoginPassword('')
-    } catch (err) {
-      setError('Failed to connect to server')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-    setLoading(true)
-
-    try {
-      const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: registerUsername,
-          email: registerEmail,
-          password: registerPassword,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.detail || 'Registration failed')
-        setLoading(false)
-        return
-      }
-
-      setSuccess('Registration successful! You can now login.')
-      setRegisterUsername('')
-      setRegisterEmail('')
-      setRegisterPassword('')
-    } catch (err) {
-      setError('Failed to connect to server')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleLogout = () => {
     setLoggedInUser(null)
