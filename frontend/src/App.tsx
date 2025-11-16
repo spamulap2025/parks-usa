@@ -20,6 +20,9 @@ function App() {
   const [success, setSuccess] = useState('')
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showEmailForm, setShowEmailForm] = useState(false)
 
   const handleLogout = () => {
     setLoggedInUser(null)
@@ -57,10 +60,6 @@ function App() {
       </div>
     )
   }
-
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showEmailForm, setShowEmailForm] = useState(false)
 
   const handleEmailContinue = async (e: React.FormEvent) => {
     e.preventDefault()
