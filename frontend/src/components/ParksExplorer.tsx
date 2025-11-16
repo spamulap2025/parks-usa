@@ -67,6 +67,58 @@ function ParkMarker({ park, isSelected, onClick }: { park: Park; isSelected: boo
   return <Marker position={park.location} icon={parkIcon} onClick={onClick} />
 }
 
+function LayerToggles({ 
+  showLocal, 
+  showState, 
+  showNationalParks, 
+  showNationalMonuments,
+  onToggleLocal,
+  onToggleState,
+  onToggleNationalParks,
+  onToggleNationalMonuments
+}: { 
+  showLocal: boolean
+  showState: boolean
+  showNationalParks: boolean
+  showNationalMonuments: boolean
+  onToggleLocal: () => void
+  onToggleState: () => void
+  onToggleNationalParks: () => void
+  onToggleNationalMonuments: () => void
+}) {
+  const gmBtn = "w-10 h-10 rounded-full bg-white ring-1 ring-black/10 shadow-[0_1px_2px_rgba(0,0,0,0.2)] hover:bg-gray-50 active:shadow-sm flex items-center justify-center transition cursor-pointer"
+
+  const layers = [
+    { show: showLocal, toggle: onToggleLocal, color: '#22c55e', label: 'Local Parks', letter: 'L' },
+    { show: showState, toggle: onToggleState, color: '#eab308', label: 'State Parks', letter: 'S' },
+    { show: showNationalParks, toggle: onToggleNationalParks, color: '#ef4444', label: 'National Parks', letter: 'NP' },
+    { show: showNationalMonuments, toggle: onToggleNationalMonuments, color: '#a855f7', label: 'National Monuments', letter: 'NM' },
+  ]
+
+  return (
+    <div className="absolute right-4 bottom-[180px] z-[1000] flex flex-col items-center gap-2">
+      {layers.map((layer) => (
+        <button
+          key={layer.label}
+          aria-label={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
+          aria-pressed={layer.show}
+          title={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
+          className={gmBtn}
+          onClick={layer.toggle}
+          style={{
+            backgroundColor: layer.show ? layer.color : '#ffffff',
+            opacity: layer.show ? 1 : 0.5
+          }}
+        >
+          <span className={`text-xs font-bold ${layer.show ? 'text-white' : 'text-gray-700'}`}>
+            {layer.letter}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function MapControls({ onLocate }: { onLocate: () => void }) {
   const map = useMap()
 
@@ -104,7 +156,21 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
   )
 }
 
-function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]) => void; onError: (error: string) => void }) {
+function ParksSearcher({ 
+  onParksFound, 
+  onError,
+  showLocal,
+  showState,
+  showNationalParks,
+  showNationalMonuments
+}: { 
+  onParksFound: (parks: Park[]) => void
+  onError: (error: string) => void
+  showLocal: boolean
+  showState: boolean
+  showNationalParks: boolean
+  showNationalMonuments: boolean
+}) {
   const map = useMap()
 
   useEffect(() => {
@@ -112,10 +178,12 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
 
     let timeoutId: NodeJS.Timeout
     let retryCount = 0
+    let abortController: AbortController | null = null
 
-    const searchParks = () => {
+    const searchParks = async () => {
       const mapCenter = map.getCenter()
       const bounds = map.getBounds()
+      const zoom = map.getZoom() || 11
       
       if (!mapCenter || !bounds) {
         if (retryCount < 5) {
@@ -132,47 +200,154 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
 
       console.info('Viewport search:', {
         center: center,
-        zoom: map.getZoom(),
+        zoom: zoom,
         bounds: bounds.toUrlValue()
       })
 
       const allSites: Park[] = []
 
-      federalSitesData.nationalParks.forEach((park: any) => {
-        const location = { lat: park.lat, lng: park.lng }
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(center.lat, center.lng),
-          new google.maps.LatLng(location.lat, location.lng)
-        ) / 1609.34
+      if (showNationalParks) {
+        federalSitesData.nationalParks.forEach((park: any) => {
+          const location = { lat: park.lat, lng: park.lng }
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(center.lat, center.lng),
+            new google.maps.LatLng(location.lat, location.lng)
+          ) / 1609.34
 
-        allSites.push({
-          id: `np-${park.name}`,
-          name: park.name,
-          location,
-          type: 'national-park',
-          address: park.state || '',
-          distance: Math.round(distance * 10) / 10,
-          state: park.state
+          allSites.push({
+            id: `np-${park.name}`,
+            name: park.name,
+            location,
+            type: 'national-park',
+            address: park.state || '',
+            distance: Math.round(distance * 10) / 10,
+            state: park.state
+          })
         })
-      })
+      }
 
-      federalSitesData.nationalMonuments.forEach((monument: any) => {
-        const location = { lat: monument.lat, lng: monument.lng }
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(center.lat, center.lng),
-          new google.maps.LatLng(location.lat, location.lng)
-        ) / 1609.34
+      if (showNationalMonuments) {
+        federalSitesData.nationalMonuments.forEach((monument: any) => {
+          const location = { lat: monument.lat, lng: monument.lng }
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(center.lat, center.lng),
+            new google.maps.LatLng(location.lat, location.lng)
+          ) / 1609.34
 
-        allSites.push({
-          id: `nm-${monument.name}`,
-          name: monument.name,
-          location,
-          type: 'national-monument',
-          address: monument.state || '',
-          distance: Math.round(distance * 10) / 10,
-          state: monument.state
+          allSites.push({
+            id: `nm-${monument.name}`,
+            name: monument.name,
+            location,
+            type: 'national-monument',
+            address: monument.state || '',
+            distance: Math.round(distance * 10) / 10,
+            state: monument.state
+          })
         })
-      })
+      }
+
+      if (showState && zoom >= 9) {
+        try {
+          const ne = bounds.getNorthEast()
+          const sw = bounds.getSouthWest()
+          const bbox = `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
+          
+          const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"]["name"~"State Park",i](${bbox});way["leisure"="park"]["name"~"State Park",i](${bbox}););out center 100;`
+          
+          if (abortController) {
+            abortController.abort()
+          }
+          abortController = new AbortController()
+          
+          const response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: overpassQuery,
+            signal: abortController.signal
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            data.elements?.forEach((element: any) => {
+              const lat = element.lat || element.center?.lat
+              const lon = element.lon || element.center?.lon
+              if (lat && lon) {
+                const location = { lat, lng: lon }
+                const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                  new google.maps.LatLng(center.lat, center.lng),
+                  new google.maps.LatLng(lat, lon)
+                ) / 1609.34
+
+                allSites.push({
+                  id: `sp-${element.id}`,
+                  name: element.tags?.name || 'State Park',
+                  location,
+                  type: 'state',
+                  address: '',
+                  distance: Math.round(distance * 10) / 10,
+                  state: element.tags?.['addr:state']
+                })
+              }
+            })
+          }
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.warn('State parks fetch failed:', err)
+          }
+        }
+      }
+
+      if (showLocal && zoom >= 11) {
+        try {
+          const ne = bounds.getNorthEast()
+          const sw = bounds.getSouthWest()
+          const bbox = `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
+          
+          const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"](${bbox});way["leisure"="park"](${bbox}););out center 100;`
+          
+          if (abortController) {
+            abortController.abort()
+          }
+          abortController = new AbortController()
+          
+          const response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: overpassQuery,
+            signal: abortController.signal
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            data.elements?.forEach((element: any) => {
+              const name = element.tags?.name
+              if (!name || name.toLowerCase().includes('state park')) return
+              
+              const lat = element.lat || element.center?.lat
+              const lon = element.lon || element.center?.lon
+              if (lat && lon) {
+                const location = { lat, lng: lon }
+                const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                  new google.maps.LatLng(center.lat, center.lng),
+                  new google.maps.LatLng(lat, lon)
+                ) / 1609.34
+
+                allSites.push({
+                  id: `lp-${element.id}`,
+                  name: name,
+                  location,
+                  type: 'local',
+                  address: '',
+                  distance: Math.round(distance * 10) / 10,
+                  state: element.tags?.['addr:state']
+                })
+              }
+            })
+          }
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.warn('Local parks fetch failed:', err)
+          }
+        }
+      }
 
       const visibleSites = allSites.filter((site) => {
         const siteLatLng = new google.maps.LatLng(site.location.lat, site.location.lng)
@@ -180,16 +355,15 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
       }).sort((a, b) => a.distance - b.distance)
 
       console.info('Sites filtered:', {
-        totalParks: federalSitesData.nationalParks.length,
-        totalMonuments: federalSitesData.nationalMonuments.length,
         totalSites: allSites.length,
-        visibleInViewport: visibleSites.length
+        visibleInViewport: visibleSites.length,
+        zoom: zoom
       })
 
       onParksFound(visibleSites)
       
       if (visibleSites.length === 0) {
-        onError('No National Parks or Monuments in this area. Pan or zoom to explore different regions.')
+        onError('No parks in this area. Pan or zoom to explore different regions.')
       } else {
         onError('')
       }
@@ -207,8 +381,11 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
       google.maps.event.removeListener(listener)
       google.maps.event.removeListener(onceListener)
       clearTimeout(timeoutId)
+      if (abortController) {
+        abortController.abort()
+      }
     }
-  }, [map, onParksFound, onError])
+  }, [map, onParksFound, onError, showLocal, showState, showNationalParks, showNationalMonuments])
 
   return null
 }
@@ -231,9 +408,7 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
   return (
     <div className="h-full overflow-y-auto bg-white border-l border-gray-200">
       <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-lg font-semibold text-gray-900">National Parks & Monuments</h2>
         <p className="text-sm text-gray-600">{parks.length} sites found</p>
-        <p className="text-xs text-gray-500 mt-1">America the Beautiful pass accepted</p>
       </div>
       {error && (
         <div className="p-4 bg-yellow-50 border-b border-yellow-200">
@@ -252,7 +427,7 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-900 truncate">{park.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{park.address}</p>
+                {park.state && <p className="text-sm text-gray-600 mt-1">{park.state}</p>}
                 <div className="flex items-center gap-2 mt-2">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeColors[park.type]}`}>
                     {typeLabels[park.type]}
@@ -280,9 +455,21 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
 
 export default function ParksExplorer() {
   const [center, setCenter] = useState<LatLng>({ lat: 37.7749, lng: -122.4194 })
-  const [parks, setParks] = useState<Park[]>([])
+  const [allParks, setAllParks] = useState<Park[]>([])
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null)
   const [error, setError] = useState<string>('')
+  const [showLocal, setShowLocal] = useState(true)
+  const [showState, setShowState] = useState(true)
+  const [showNationalParks, setShowNationalParks] = useState(true)
+  const [showNationalMonuments, setShowNationalMonuments] = useState(true)
+
+  const parks = allParks.filter(park => {
+    if (park.type === 'local' && !showLocal) return false
+    if (park.type === 'state' && !showState) return false
+    if (park.type === 'national-park' && !showNationalParks) return false
+    if (park.type === 'national-monument' && !showNationalMonuments) return false
+    return true
+  })
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -312,7 +499,7 @@ export default function ParksExplorer() {
   }, [])
 
   const handleParksFound = useCallback((foundParks: Park[]) => {
-    setParks(foundParks)
+    setAllParks(foundParks)
   }, [])
 
   const handleError = useCallback((errorMsg: string) => {
@@ -335,8 +522,25 @@ export default function ParksExplorer() {
           >
             <BlueDotMarker position={center} />
             <Recenter center={center} />
+            <LayerToggles
+              showLocal={showLocal}
+              showState={showState}
+              showNationalParks={showNationalParks}
+              showNationalMonuments={showNationalMonuments}
+              onToggleLocal={() => setShowLocal(!showLocal)}
+              onToggleState={() => setShowState(!showState)}
+              onToggleNationalParks={() => setShowNationalParks(!showNationalParks)}
+              onToggleNationalMonuments={() => setShowNationalMonuments(!showNationalMonuments)}
+            />
             <MapControls onLocate={handleLocationClick} />
-            <ParksSearcher onParksFound={handleParksFound} onError={handleError} />
+            <ParksSearcher 
+              onParksFound={handleParksFound} 
+              onError={handleError}
+              showLocal={showLocal}
+              showState={showState}
+              showNationalParks={showNationalParks}
+              showNationalMonuments={showNationalMonuments}
+            />
             {parks.map((park) => (
               <ParkMarker
                 key={park.id}
