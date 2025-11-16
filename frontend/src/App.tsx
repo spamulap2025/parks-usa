@@ -25,18 +25,10 @@ function App() {
   const [password, setPassword] = useState('')
   const [showEmailForm, setShowEmailForm] = useState(false)
 
-  const handleLogout = () => {
-    setLoggedInUser(null)
-    setSuccess('Logged out successfully')
-  }
-
   if (loggedInUser) {
     return (
       <div className="relative h-screen w-screen">
         <MapView />
-        <Button onClick={handleLogout} className="absolute top-4 left-4 z-[1000] bg-white text-black hover:bg-gray-100">
-          Logout
-        </Button>
       </div>
     )
   }
