@@ -13,6 +13,74 @@ type Park = {
   distance: number
 }
 
+const NATIONAL_PARKS = [
+  'Acadia National Park',
+  'Arches National Park',
+  'Badlands National Park',
+  'Big Bend National Park',
+  'Biscayne National Park',
+  'Black Canyon of the Gunnison National Park',
+  'Bryce Canyon National Park',
+  'Canyonlands National Park',
+  'Capitol Reef National Park',
+  'Carlsbad Caverns National Park',
+  'Channel Islands National Park',
+  'Congaree National Park',
+  'Crater Lake National Park',
+  'Cuyahoga Valley National Park',
+  'Death Valley National Park',
+  'Denali National Park',
+  'Dry Tortugas National Park',
+  'Everglades National Park',
+  'Gates of the Arctic National Park',
+  'Gateway Arch National Park',
+  'Glacier National Park',
+  'Glacier Bay National Park',
+  'Grand Canyon National Park',
+  'Grand Teton National Park',
+  'Great Sand Dunes National Park',
+  'Great Smoky Mountains National Park',
+  'Guadalupe Mountains National Park',
+  'Haleakalā National Park',
+  'Hawai\'i Volcanoes National Park',
+  'Hot Springs National Park',
+  'Indiana Dunes National Park',
+  'Isle Royale National Park',
+  'Joshua Tree National Park',
+  'Katmai National Park',
+  'Kenai Fjords National Park',
+  'Kings Canyon National Park',
+  'Kobuk Valley National Park',
+  'Lake Clark National Park',
+  'Lassen Volcanic National Park',
+  'Mammoth Cave National Park',
+  'Mesa Verde National Park',
+  'Mount Rainier National Park',
+  'North Cascades National Park',
+  'Olympic National Park',
+  'Petrified Forest National Park',
+  'Pinnacles National Park',
+  'Redwood National and State Parks',
+  'Rocky Mountain National Park',
+  'Saguaro National Park',
+  'Sequoia National Park',
+  'Shenandoah National Park',
+  'Theodore Roosevelt National Park',
+  'Virgin Islands National Park',
+  'Voyageurs National Park',
+  'White Sands National Park',
+  'Wind Cave National Park',
+  'Wrangell–St. Elias National Park',
+  'Yellowstone National Park',
+  'Yosemite National Park',
+  'Zion National Park',
+]
+
+function isNationalPark(parkName: string): boolean {
+  const normalizedName = parkName.toLowerCase().trim()
+  return NATIONAL_PARKS.some(np => normalizedName.includes(np.toLowerCase()))
+}
+
 function Recenter({ center }: { center: LatLng }) {
   const map = useMap()
   useEffect(() => {
@@ -162,15 +230,14 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
         })
 
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const allParks: Park[] = results.map((place) => {
+          const allParks: Park[] = results
+            .filter((place) => {
+              const name = place.name || ''
+              return isNationalPark(name)
+            })
+            .map((place) => {
             const name = place.name || 'Unknown Park'
-            let type: 'local' | 'state' | 'national' = 'local'
-            
-            if (name.toLowerCase().includes('national park') || name.toLowerCase().includes('national monument')) {
-              type = 'national'
-            } else if (name.toLowerCase().includes('state park') || name.toLowerCase().includes('state recreation')) {
-              type = 'state'
-            }
+            const type: 'local' | 'state' | 'national' = 'national'
 
             const location = {
               lat: place.geometry?.location?.lat() || 0,
@@ -206,7 +273,7 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
           onError('')
         } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           onParksFound([])
-          onError('No parks found in this area. Try zooming out or moving the map.')
+          onError('No National Parks found in this area. Try zooming out or moving the map.')
         } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
           onParksFound([])
           onError('Places API access denied. Please check API key restrictions.')
@@ -251,8 +318,9 @@ function ParksList({ parks, selectedParkId, onParkClick, error, onSearchArea }: 
   return (
     <div className="h-full overflow-y-auto bg-white border-l border-gray-200">
       <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-lg font-semibold text-gray-900">Parks in this area</h2>
+        <h2 className="text-lg font-semibold text-gray-900">National Parks</h2>
         <p className="text-sm text-gray-600">{parks.length} parks found</p>
+        <p className="text-xs text-gray-500 mt-1">America the Beautiful pass accepted</p>
         <button
           onClick={onSearchArea}
           className="mt-2 w-full px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
