@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
+import { Locate } from 'lucide-react'
 
 type LatLng = { lat: number; lng: number }
 
@@ -11,6 +12,20 @@ function Recenter({ center }: { center: LatLng }) {
     }
   }, [center, map])
   return null
+}
+
+function LocationButton({ onLocationClick }: { onLocationClick: () => void }) {
+  return (
+    <div className="absolute right-4 bottom-32 z-[1000]">
+      <button
+        onClick={onLocationClick}
+        className="w-10 h-10 bg-white rounded shadow-md hover:bg-gray-100 flex items-center justify-center"
+        title="Your location"
+      >
+        <Locate size={20} className="text-gray-700" />
+      </button>
+    </div>
+  )
 }
 
 function ZoomControls() {
@@ -48,6 +63,15 @@ export default function MapView() {
     )
   }, [])
 
+  const handleLocationClick = () => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
+  }
+
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
 
   return (
@@ -63,6 +87,7 @@ export default function MapView() {
         >
           <Marker position={center} />
           <Recenter center={center} />
+          <LocationButton onLocationClick={handleLocationClick} />
           <ZoomControls />
         </Map>
       </APIProvider>
