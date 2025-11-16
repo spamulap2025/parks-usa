@@ -14,38 +14,55 @@ function Recenter({ center }: { center: LatLng }) {
   return null
 }
 
-function LocationButton({ onLocationClick }: { onLocationClick: () => void }) {
-  return (
-    <div className="absolute right-4 bottom-32 z-[1000]">
-      <button
-        onClick={onLocationClick}
-        className="w-10 h-10 bg-white rounded shadow-md hover:bg-gray-100 flex items-center justify-center"
-        title="Your location"
-      >
-        <Locate size={20} className="text-gray-700" />
-      </button>
-    </div>
-  )
+function BlueDotMarker({ position }: { position: LatLng }) {
+  const map = useMap()
+  
+  if (!map) return null
+
+  const blueDotIcon: google.maps.Symbol = {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 8,
+    fillColor: '#1a73e8',
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2,
+  }
+
+  return <Marker position={position} icon={blueDotIcon} clickable={false} />
 }
 
-function ZoomControls() {
+function MapControls({ onLocate }: { onLocate: () => void }) {
   const map = useMap()
 
   if (!map) return null
 
+  const gmBtn = "w-10 h-10 rounded-full bg-white ring-1 ring-black/10 shadow-[0_1px_2px_rgba(0,0,0,0.2)] hover:bg-gray-50 active:shadow-sm flex items-center justify-center transition"
+
   return (
-    <div className="absolute right-4 bottom-4 z-[1000] flex flex-col gap-2">
+    <div className="absolute right-4 bottom-4 z-[1000] flex flex-col items-center gap-2">
       <button
+        aria-label="Zoom in"
+        title="Zoom in"
+        className={gmBtn}
         onClick={() => map.setZoom((map.getZoom() || 15) + 1)}
-        className="w-10 h-10 bg-white rounded shadow-md hover:bg-gray-100 flex items-center justify-center text-xl font-semibold"
       >
-        +
+        <span className="text-xl font-medium text-gray-700">+</span>
       </button>
       <button
+        aria-label="Zoom out"
+        title="Zoom out"
+        className={gmBtn}
         onClick={() => map.setZoom((map.getZoom() || 15) - 1)}
-        className="w-10 h-10 bg-white rounded shadow-md hover:bg-gray-100 flex items-center justify-center text-xl font-semibold"
       >
-        −
+        <span className="text-xl font-medium text-gray-700">−</span>
+      </button>
+      <button
+        aria-label="Your location"
+        title="Your location"
+        className={gmBtn}
+        onClick={onLocate}
+      >
+        <Locate size={18} className="text-gray-700" />
       </button>
     </div>
   )
@@ -85,10 +102,9 @@ export default function MapView() {
           mapTypeId="satellite"
           className="h-full w-full"
         >
-          <Marker position={center} />
+          <BlueDotMarker position={center} />
           <Recenter center={center} />
-          <LocationButton onLocationClick={handleLocationClick} />
-          <ZoomControls />
+          <MapControls onLocate={handleLocationClick} />
         </Map>
       </APIProvider>
     </div>
