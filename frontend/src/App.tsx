@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Phone } from 'lucide-react'
+import MapView from '@/components/MapView'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -31,32 +32,11 @@ function App() {
 
   if (loggedInUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Welcome!</CardTitle>
-            <CardDescription>You are logged in</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="font-semibold">Username:</span>
-                <span>{loggedInUser.username}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Email:</span>
-                <span>{loggedInUser.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">User ID:</span>
-                <span className="text-xs">{loggedInUser.user_id}</span>
-              </div>
-            </div>
-            <Button onClick={handleLogout} className="w-full">
-              Logout
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="relative h-screen w-screen">
+        <MapView />
+        <Button onClick={handleLogout} className="absolute top-4 left-4 z-[1000] bg-white text-black hover:bg-gray-100">
+          Logout
+        </Button>
       </div>
     )
   }
