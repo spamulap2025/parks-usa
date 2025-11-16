@@ -103,7 +103,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center pb-6">
-          <CardTitle className="text-2xl font-semibold">Welcome to Parker</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Welcome, Parker.</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {error && (
@@ -194,7 +194,7 @@ function App() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12"
+                  className="h-12 text-center"
                 />
                 <Button
                   className="w-full h-12 bg-black hover:bg-gray-800 text-white"
