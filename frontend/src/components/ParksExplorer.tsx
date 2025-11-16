@@ -16,13 +16,16 @@ type Park = {
 }
 
 
-function Recenter({ center }: { center: LatLng }) {
+function Recenter({ center, zoom }: { center: LatLng; zoom?: number }) {
   const map = useMap()
   useEffect(() => {
     if (map) {
       map.setCenter(center)
+      if (zoom !== undefined) {
+        map.setZoom(zoom)
+      }
     }
-  }, [center, map])
+  }, [center, zoom, map])
   return null
 }
 
@@ -455,6 +458,7 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
 
 export default function ParksExplorer() {
   const [center, setCenter] = useState<LatLng>({ lat: 37.7749, lng: -122.4194 })
+  const [zoom, setZoom] = useState<number | undefined>(undefined)
   const [allParks, setAllParks] = useState<Park[]>([])
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null)
   const [error, setError] = useState<string>('')
@@ -462,6 +466,7 @@ export default function ParksExplorer() {
   const [showState, setShowState] = useState(true)
   const [showNationalParks, setShowNationalParks] = useState(true)
   const [showNationalMonuments, setShowNationalMonuments] = useState(true)
+  const [parkingLotCache, setParkingLotCache] = useState<Record<string, LatLng>>({})
 
   const parks = allParks.filter(park => {
     if (park.type === 'local' && !showLocal) return false
@@ -489,10 +494,62 @@ export default function ParksExplorer() {
     )
   }
 
-  const handleParkClick = useCallback((park: Park) => {
+  const handleParkClick = useCallback(async (park: Park) => {
     setSelectedParkId(park.id)
-    setCenter(park.location)
-  }, [])
+    
+    if (parkingLotCache[park.id]) {
+      setCenter(parkingLotCache[park.id])
+      setZoom(17)
+      return
+    }
+    
+    try {
+      const service = new google.maps.places.PlacesService(document.createElement('div'))
+      
+      const request: google.maps.places.TextSearchRequest = {
+        query: `${park.name} parking`,
+        location: new google.maps.LatLng(park.location.lat, park.location.lng),
+        radius: 2000, // 2km radius
+      }
+      
+      service.textSearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+          let closestParking = results[0]
+          let minDistance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(park.location.lat, park.location.lng),
+            results[0].geometry!.location!
+          )
+          
+          for (let i = 1; i < Math.min(results.length, 5); i++) {
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(
+              new google.maps.LatLng(park.location.lat, park.location.lng),
+              results[i].geometry!.location!
+            )
+            if (distance < minDistance) {
+              minDistance = distance
+              closestParking = results[i]
+            }
+          }
+          
+          const parkingLocation = {
+            lat: closestParking.geometry!.location!.lat(),
+            lng: closestParking.geometry!.location!.lng()
+          }
+          
+          setParkingLotCache(prev => ({ ...prev, [park.id]: parkingLocation }))
+          setCenter(parkingLocation)
+          setZoom(17)
+        } else {
+          setCenter(park.location)
+          setZoom(15)
+        }
+      })
+    } catch (err) {
+      console.warn('Failed to find parking lot:', err)
+      setCenter(park.location)
+      setZoom(15)
+    }
+  }, [parkingLotCache])
 
   const handleMarkerClick = useCallback((park: Park) => {
     setSelectedParkId(park.id)
@@ -521,7 +578,7 @@ export default function ParksExplorer() {
             className="h-full w-full"
           >
             <BlueDotMarker position={center} />
-            <Recenter center={center} />
+            <Recenter center={center} zoom={zoom} />
             <LayerToggles
               showLocal={showLocal}
               showState={showState}
