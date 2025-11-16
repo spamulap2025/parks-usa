@@ -102,11 +102,8 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center space-y-2 pb-4">
-          <CardTitle className="text-2xl font-semibold">Log in or sign up</CardTitle>
-          <CardDescription className="text-sm text-gray-600">
-            You'll get smarter responses and can upload files, images, and more.
-          </CardDescription>
+        <CardHeader className="text-center pb-6">
+          <CardTitle className="text-2xl font-semibold">Welcome to Parker</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {error && (
