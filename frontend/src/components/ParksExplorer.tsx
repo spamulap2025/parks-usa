@@ -107,28 +107,42 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
     if (!map) return
 
     let timeoutId: NodeJS.Timeout
+    let searchId = 0
 
     const searchParks = () => {
       const mapCenter = map.getCenter()
-      if (!mapCenter) return
+      const bounds = map.getBounds()
+      if (!mapCenter || !bounds) return
+
+      const currentSearchId = ++searchId
 
       const center = {
         lat: mapCenter.lat(),
         lng: mapCenter.lng(),
       }
 
+      const ne = bounds.getNorthEast()
+      const distanceToCorner = google.maps.geometry.spherical.computeDistanceBetween(
+        mapCenter,
+        ne
+      )
+      
+      const radius = Math.min(50000, distanceToCorner)
+
       const service = new google.maps.places.PlacesService(map)
       
       const request = {
         location: center,
-        rankBy: google.maps.places.RankBy.DISTANCE,
+        radius: radius,
         type: 'park',
         keyword: 'park',
       }
 
       service.nearbySearch(request, (results, status) => {
+        if (currentSearchId !== searchId) return
+
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const parks: Park[] = results.slice(0, 30).map((place) => {
+          const allParks: Park[] = results.map((place) => {
             const name = place.name || 'Unknown Park'
             let type: 'local' | 'state' | 'national' = 'local'
             
@@ -158,7 +172,12 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
             }
           })
 
-          onParksFound(parks)
+          const visibleParks = allParks.filter((park) => {
+            const parkLatLng = new google.maps.LatLng(park.location.lat, park.location.lng)
+            return bounds.contains(parkLatLng)
+          }).sort((a, b) => a.distance - b.distance)
+
+          onParksFound(visibleParks)
         }
       })
     }
@@ -197,7 +216,7 @@ function ParksList({ parks, selectedParkId, onParkClick }: { parks: Park[]; sele
   return (
     <div className="h-full overflow-y-auto bg-white border-l border-gray-200">
       <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-lg font-semibold text-gray-900">Nearby Parks</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Parks in this area</h2>
         <p className="text-sm text-gray-600">{parks.length} parks found</p>
       </div>
       <div className="divide-y divide-gray-200">
