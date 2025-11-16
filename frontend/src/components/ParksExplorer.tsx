@@ -100,56 +100,83 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
   )
 }
 
-function ParksSearcher({ center, onParksFound }: { center: LatLng; onParksFound: (parks: Park[]) => void }) {
+function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void }) {
   const map = useMap()
 
   useEffect(() => {
     if (!map) return
 
-    const service = new google.maps.places.PlacesService(map)
-    
-    const request = {
-      location: center,
-      radius: 50000,
-      type: 'park',
+    let timeoutId: NodeJS.Timeout
+
+    const searchParks = () => {
+      const mapCenter = map.getCenter()
+      if (!mapCenter) return
+
+      const center = {
+        lat: mapCenter.lat(),
+        lng: mapCenter.lng(),
+      }
+
+      const service = new google.maps.places.PlacesService(map)
+      
+      const request = {
+        location: center,
+        rankBy: google.maps.places.RankBy.DISTANCE,
+        type: 'park',
+        keyword: 'park',
+      }
+
+      service.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          const parks: Park[] = results.slice(0, 30).map((place) => {
+            const name = place.name || 'Unknown Park'
+            let type: 'local' | 'state' | 'national' = 'local'
+            
+            if (name.toLowerCase().includes('national park') || name.toLowerCase().includes('national monument')) {
+              type = 'national'
+            } else if (name.toLowerCase().includes('state park') || name.toLowerCase().includes('state recreation')) {
+              type = 'state'
+            }
+
+            const location = {
+              lat: place.geometry?.location?.lat() || 0,
+              lng: place.geometry?.location?.lng() || 0,
+            }
+
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(
+              new google.maps.LatLng(center.lat, center.lng),
+              new google.maps.LatLng(location.lat, location.lng)
+            ) / 1609.34
+
+            return {
+              id: place.place_id || Math.random().toString(),
+              name,
+              location,
+              type,
+              address: place.vicinity || '',
+              distance: Math.round(distance * 10) / 10,
+            }
+          })
+
+          onParksFound(parks)
+        }
+      })
     }
 
-    service.nearbySearch(request, (results, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-        const parks: Park[] = results.map((place) => {
-          const name = place.name || 'Unknown Park'
-          let type: 'local' | 'state' | 'national' = 'local'
-          
-          if (name.toLowerCase().includes('national park') || name.toLowerCase().includes('national monument')) {
-            type = 'national'
-          } else if (name.toLowerCase().includes('state park') || name.toLowerCase().includes('state recreation')) {
-            type = 'state'
-          }
+    const handleIdle = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(searchParks, 500)
+    }
 
-          const location = {
-            lat: place.geometry?.location?.lat() || 0,
-            lng: place.geometry?.location?.lng() || 0,
-          }
+    const listener = google.maps.event.addListener(map, 'idle', handleIdle)
+    
+    searchParks()
 
-          const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(center.lat, center.lng),
-            new google.maps.LatLng(location.lat, location.lng)
-          ) / 1609.34
-
-          return {
-            id: place.place_id || Math.random().toString(),
-            name,
-            location,
-            type,
-            address: place.vicinity || '',
-            distance: Math.round(distance * 10) / 10,
-          }
-        }).sort((a, b) => a.distance - b.distance)
-
-        onParksFound(parks)
-      }
-    })
-  }, [map, center, onParksFound])
+    return () => {
+      google.maps.event.removeListener(listener)
+      clearTimeout(timeoutId)
+    }
+  }, [map, onParksFound])
 
   return null
 }
@@ -264,7 +291,7 @@ export default function ParksExplorer() {
             <BlueDotMarker position={center} />
             <Recenter center={center} />
             <MapControls onLocate={handleLocationClick} />
-            <ParksSearcher center={center} onParksFound={handleParksFound} />
+            <ParksSearcher onParksFound={handleParksFound} />
             {parks.map((park) => (
               <ParkMarker
                 key={park.id}
