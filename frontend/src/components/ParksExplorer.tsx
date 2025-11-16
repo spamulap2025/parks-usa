@@ -83,7 +83,8 @@ function LayerToggles({
   localCount,
   stateCount,
   nationalParksCount,
-  nationalMonumentsCount
+  nationalMonumentsCount,
+  onHomeClick
 }: { 
   showLocal: boolean
   showState: boolean
@@ -97,6 +98,7 @@ function LayerToggles({
   stateCount: number
   nationalParksCount: number
   nationalMonumentsCount: number
+  onHomeClick: () => void
 }){
   const baseBtn = "w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm border border-black/10 shadow-sm hover:shadow-md hover:-translate-y-0.5 flex items-center justify-center transition-all duration-200 cursor-pointer"
 
@@ -137,7 +139,7 @@ function LayerToggles({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="absolute right-4 bottom-[180px] z-[1000] flex flex-col items-center gap-2.5">
+      <div className="absolute right-4 bottom-4 z-[1000] flex flex-col items-center gap-2.5">
         {layers.map((layer) => {
           const Icon = layer.icon
           return (
@@ -171,27 +173,25 @@ function LayerToggles({
             </Tooltip>
           )
         })}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              aria-label="Home"
+              className={baseBtn}
+              onClick={onHomeClick}
+            >
+              <Home size={18} className="text-zinc-700" strokeWidth={2.5} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
+            <p className="text-sm font-medium">Home</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </TooltipProvider>
   )
 }
 
-function MapControls({ onLocate }: { onLocate: () => void }) {
-  const gmBtn = "w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm border border-black/10 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
-
-  return (
-    <div className="absolute right-4 bottom-4 z-[1000]">
-      <button
-        aria-label="Home"
-        title="Home"
-        className={gmBtn}
-        onClick={onLocate}
-      >
-        <Home size={18} className="text-zinc-700" strokeWidth={2.5} />
-      </button>
-    </div>
-  )
-}
 
 function ParksSearcher({ 
   onParksFound, 
@@ -606,9 +606,16 @@ export default function ParksExplorer() {
         const location = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         setCenter(location)
         setUserLocation(location)
+        setZoom(15)
       },
-      () => {},
-      { enableHighAccuracy: true, timeout: 8000 }
+      (error) => {
+        console.error('Error getting location:', error)
+        if (userLocation) {
+          setCenter(userLocation)
+          setZoom(15)
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 }
     )
   }
 
@@ -710,8 +717,8 @@ export default function ParksExplorer() {
               stateCount={stateCount}
               nationalParksCount={nationalParksCount}
               nationalMonumentsCount={nationalMonumentsCount}
+              onHomeClick={handleLocationClick}
             />
-            <MapControls onLocate={handleLocationClick} />
             <ParksSearcher 
               onParksFound={handleParksFound} 
               onError={handleError}
