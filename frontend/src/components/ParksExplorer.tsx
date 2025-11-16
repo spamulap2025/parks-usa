@@ -302,7 +302,7 @@ function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]
   return null
 }
 
-function ParksList({ parks, selectedParkId, onParkClick, error, onSearchArea }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string; onSearchArea: () => void }) {
+function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string }) {
   const typeColors = {
     local: 'bg-green-100 text-green-800',
     state: 'bg-yellow-100 text-yellow-800',
@@ -321,12 +321,6 @@ function ParksList({ parks, selectedParkId, onParkClick, error, onSearchArea }: 
         <h2 className="text-lg font-semibold text-gray-900">National Parks</h2>
         <p className="text-sm text-gray-600">{parks.length} parks found</p>
         <p className="text-xs text-gray-500 mt-1">America the Beautiful pass accepted</p>
-        <button
-          onClick={onSearchArea}
-          className="mt-2 w-full px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Search this area
-        </button>
       </div>
       {error && (
         <div className="p-4 bg-yellow-50 border-b border-yellow-200">
@@ -376,7 +370,6 @@ export default function ParksExplorer() {
   const [parks, setParks] = useState<Park[]>([])
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null)
   const [error, setError] = useState<string>('')
-  const [searchTrigger, setSearchTrigger] = useState(0)
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -413,10 +406,6 @@ export default function ParksExplorer() {
     setError(errorMsg)
   }, [])
 
-  const handleSearchArea = useCallback(() => {
-    setSearchTrigger(prev => prev + 1)
-  }, [])
-
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
 
   return (
@@ -434,7 +423,7 @@ export default function ParksExplorer() {
             <BlueDotMarker position={center} />
             <Recenter center={center} />
             <MapControls onLocate={handleLocationClick} />
-            <ParksSearcher onParksFound={handleParksFound} onError={handleError} key={searchTrigger} />
+            <ParksSearcher onParksFound={handleParksFound} onError={handleError} />
             {parks.map((park) => (
               <ParkMarker
                 key={park.id}
@@ -447,7 +436,7 @@ export default function ParksExplorer() {
         </APIProvider>
       </div>
       <div className="w-[20%]">
-        <ParksList parks={parks} selectedParkId={selectedParkId} onParkClick={handleParkClick} error={error} onSearchArea={handleSearchArea} />
+        <ParksList parks={parks} selectedParkId={selectedParkId} onParkClick={handleParkClick} error={error} />
       </div>
     </div>
   )
