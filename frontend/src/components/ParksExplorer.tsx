@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
-import { Locate, Navigation } from 'lucide-react'
+import { Locate, Navigation, Trees, Mountain, Landmark, Flag } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import federalSitesData from '../data/federal_sites.json'
 
 type LatLng = { lat: number; lng: number }
@@ -89,36 +90,72 @@ function LayerToggles({
   onToggleNationalParks: () => void
   onToggleNationalMonuments: () => void
 }) {
-  const gmBtn = "w-10 h-10 rounded-full bg-white ring-1 ring-black/10 shadow-[0_1px_2px_rgba(0,0,0,0.2)] hover:bg-gray-50 active:shadow-sm flex items-center justify-center transition cursor-pointer"
+  const baseBtn = "w-11 h-11 rounded-full backdrop-blur-md border shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
 
   const layers = [
-    { show: showLocal, toggle: onToggleLocal, color: '#22c55e', label: 'Local Parks', letter: 'L' },
-    { show: showState, toggle: onToggleState, color: '#eab308', label: 'State Parks', letter: 'S' },
-    { show: showNationalParks, toggle: onToggleNationalParks, color: '#ef4444', label: 'National Parks', letter: 'NP' },
-    { show: showNationalMonuments, toggle: onToggleNationalMonuments, color: '#a855f7', label: 'National Monuments', letter: 'NM' },
+    { 
+      show: showLocal, 
+      toggle: onToggleLocal, 
+      color: '#10b981', 
+      label: 'Local Parks',
+      icon: Trees
+    },
+    { 
+      show: showState, 
+      toggle: onToggleState, 
+      color: '#f59e0b', 
+      label: 'State Parks',
+      icon: Mountain
+    },
+    { 
+      show: showNationalParks, 
+      toggle: onToggleNationalParks, 
+      color: '#ef4444', 
+      label: 'National Parks',
+      icon: Landmark
+    },
+    { 
+      show: showNationalMonuments, 
+      toggle: onToggleNationalMonuments, 
+      color: '#a855f7', 
+      label: 'National Monuments',
+      icon: Flag
+    },
   ]
 
   return (
-    <div className="absolute right-4 bottom-[180px] z-[1000] flex flex-col items-center gap-2">
-      {layers.map((layer) => (
-        <button
-          key={layer.label}
-          aria-label={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
-          aria-pressed={layer.show}
-          title={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
-          className={gmBtn}
-          onClick={layer.toggle}
-          style={{
-            backgroundColor: layer.show ? layer.color : '#ffffff',
-            opacity: layer.show ? 1 : 0.5
-          }}
-        >
-          <span className={`text-xs font-bold ${layer.show ? 'text-white' : 'text-gray-700'}`}>
-            {layer.letter}
-          </span>
-        </button>
-      ))}
-    </div>
+    <TooltipProvider delayDuration={300}>
+      <div className="absolute right-4 bottom-[180px] z-[1000] flex flex-col items-center gap-2.5">
+        {layers.map((layer) => {
+          const Icon = layer.icon
+          return (
+            <Tooltip key={layer.label}>
+              <TooltipTrigger asChild>
+                <button
+                  aria-label={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
+                  aria-pressed={layer.show}
+                  className={baseBtn}
+                  onClick={layer.toggle}
+                  style={{
+                    backgroundColor: layer.show ? layer.color : 'rgba(24, 24, 27, 0.7)',
+                    borderColor: layer.show ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <Icon 
+                    size={18} 
+                    className={layer.show ? 'text-white' : 'text-zinc-400'}
+                    strokeWidth={2.5}
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="bg-zinc-900 text-white border-zinc-700">
+                <p className="text-sm font-medium">{layer.label}</p>
+              </TooltipContent>
+            </Tooltip>
+          )
+        })}
+      </div>
+    </TooltipProvider>
   )
 }
 
@@ -127,17 +164,17 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
 
   if (!map) return null
 
-  const gmBtn = "w-10 h-10 rounded-full bg-white ring-1 ring-black/10 shadow-[0_1px_2px_rgba(0,0,0,0.2)] hover:bg-gray-50 active:shadow-sm flex items-center justify-center transition"
+  const gmBtn = "w-11 h-11 rounded-full backdrop-blur-md bg-zinc-900/70 border border-white/10 shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
 
   return (
-    <div className="absolute right-4 bottom-4 z-[1000] flex flex-col items-center gap-2">
+    <div className="absolute right-4 bottom-4 z-[1000] flex flex-col items-center gap-2.5">
       <button
         aria-label="Zoom in"
         title="Zoom in"
         className={gmBtn}
         onClick={() => map.setZoom((map.getZoom() || 15) + 1)}
       >
-        <span className="text-xl font-medium text-gray-700">+</span>
+        <span className="text-xl font-light text-white">+</span>
       </button>
       <button
         aria-label="Zoom out"
@@ -145,7 +182,7 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
         className={gmBtn}
         onClick={() => map.setZoom((map.getZoom() || 15) - 1)}
       >
-        <span className="text-xl font-medium text-gray-700">−</span>
+        <span className="text-xl font-light text-white">−</span>
       </button>
       <button
         aria-label="Your location"
@@ -153,7 +190,7 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
         className={gmBtn}
         onClick={onLocate}
       >
-        <Locate size={18} className="text-gray-700" />
+        <Locate size={18} className="text-white" strokeWidth={2.5} />
       </button>
     </div>
   )
@@ -397,10 +434,10 @@ function ParksSearcher({
 
 function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string }) {
   const typeColors = {
-    local: 'bg-green-100 text-green-800',
-    state: 'bg-yellow-100 text-yellow-800',
-    'national-park': 'bg-red-100 text-red-800',
-    'national-monument': 'bg-purple-100 text-purple-800',
+    local: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    state: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+    'national-park': 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+    'national-monument': 'bg-violet-500/20 text-violet-300 border-violet-500/30',
   }
 
   const typeLabels = {
@@ -411,44 +448,46 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-white border-l border-gray-200">
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <p className="text-sm text-gray-600">{parks.length} sites found</p>
+    <div className="h-full overflow-y-auto backdrop-blur-md bg-zinc-900/80 border-l border-white/10">
+      <div className="sticky top-0 z-10 p-4 border-b border-white/10 bg-zinc-900/90 backdrop-blur-md">
+        <p className="text-sm font-medium text-zinc-300">{parks.length} sites found</p>
       </div>
       {error && (
-        <div className="p-4 bg-yellow-50 border-b border-yellow-200">
-          <p className="text-sm text-yellow-800">{error}</p>
+        <div className="mx-3 mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg backdrop-blur-sm">
+          <p className="text-sm text-amber-300">{error}</p>
         </div>
       )}
-      <div className="divide-y divide-gray-200">
+      <div className="p-2 space-y-2">
         {parks.map((park) => (
           <div
             key={park.id}
-            className={`p-4 cursor-pointer hover:bg-gray-50 transition ${
-              selectedParkId === park.id ? 'bg-blue-50' : ''
+            className={`group rounded-xl p-3 cursor-pointer transition-all duration-150 active:scale-[0.98] ${
+              selectedParkId === park.id 
+                ? 'bg-white/10 ring-2 ring-sky-400/50 shadow-lg' 
+                : 'bg-white/5 hover:bg-white/10 hover:shadow-md'
             }`}
             onClick={() => onParkClick(park)}
           >
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">{park.name}</h3>
-                {park.state && <p className="text-sm text-gray-600 mt-1">{park.state}</p>}
-                <div className="flex items-center gap-2 mt-2">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeColors[park.type]}`}>
+                <h3 className="font-semibold text-white text-[15px] truncate leading-tight">{park.name}</h3>
+                {park.state && <p className="text-sm text-zinc-400 mt-1">{park.state}</p>}
+                <div className="flex items-center gap-2 mt-2.5">
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-medium border ${typeColors[park.type]}`}>
                     {typeLabels[park.type]}
                   </span>
-                  <span className="text-sm text-gray-500">{park.distance} mi</span>
+                  <span className="text-sm text-zinc-400 font-medium">{park.distance} mi</span>
                 </div>
               </div>
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${park.location.lat},${park.location.lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 p-2 text-blue-600 hover:bg-blue-50 rounded-full transition"
+                className="flex-shrink-0 p-2 text-sky-400 hover:bg-sky-400/10 rounded-full transition-all duration-150"
                 onClick={(e) => e.stopPropagation()}
                 title="Get directions"
               >
-                <Navigation size={18} />
+                <Navigation size={18} strokeWidth={2.5} />
               </a>
             </div>
           </div>
