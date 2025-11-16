@@ -79,7 +79,11 @@ function LayerToggles({
   onToggleLocal,
   onToggleState,
   onToggleNationalParks,
-  onToggleNationalMonuments
+  onToggleNationalMonuments,
+  localCount,
+  stateCount,
+  nationalParksCount,
+  nationalMonumentsCount
 }: { 
   showLocal: boolean
   showState: boolean
@@ -89,7 +93,11 @@ function LayerToggles({
   onToggleState: () => void
   onToggleNationalParks: () => void
   onToggleNationalMonuments: () => void
-}) {
+  localCount: number
+  stateCount: number
+  nationalParksCount: number
+  nationalMonumentsCount: number
+}){
   const baseBtn = "w-11 h-11 rounded-full backdrop-blur-md border shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
 
   const layers = [
@@ -98,28 +106,32 @@ function LayerToggles({
       toggle: onToggleLocal, 
       color: '#10b981', 
       label: 'Local Parks',
-      icon: Trees
+      icon: Trees,
+      count: localCount
     },
     { 
       show: showState, 
       toggle: onToggleState, 
       color: '#f59e0b', 
       label: 'State Parks',
-      icon: Mountain
+      icon: Mountain,
+      count: stateCount
     },
     { 
       show: showNationalParks, 
       toggle: onToggleNationalParks, 
       color: '#ef4444', 
       label: 'National Parks',
-      icon: Landmark
+      icon: Landmark,
+      count: nationalParksCount
     },
     { 
       show: showNationalMonuments, 
       toggle: onToggleNationalMonuments, 
       color: '#a855f7', 
       label: 'National Monuments',
-      icon: Flag
+      icon: Flag,
+      count: nationalMonumentsCount
     },
   ]
 
@@ -134,7 +146,7 @@ function LayerToggles({
                 <button
                   aria-label={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
                   aria-pressed={layer.show}
-                  className={baseBtn}
+                  className={`${baseBtn} relative`}
                   onClick={layer.toggle}
                   style={{
                     backgroundColor: layer.show ? layer.color : 'rgba(24, 24, 27, 0.7)',
@@ -146,6 +158,11 @@ function LayerToggles({
                     className={layer.show ? 'text-white' : 'text-zinc-400'}
                     strokeWidth={2.5}
                   />
+                  {layer.count > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-zinc-900">
+                      {layer.count > 99 ? '99+' : layer.count}
+                    </span>
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="left" className="bg-zinc-900 text-white border-zinc-700">
@@ -433,6 +450,9 @@ function ParksSearcher({
 }
 
 function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string }) {
+  const [parkImage, setParkImage] = useState<string | null>(null)
+  const [loadingImage, setLoadingImage] = useState(false)
+  
   const typeColors = {
     local: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
     state: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
@@ -447,6 +467,46 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
     'national-monument': 'National Monument',
   }
 
+  const selectedPark = parks.find(p => p.id === selectedParkId)
+
+  useEffect(() => {
+    if (!selectedPark) {
+      setParkImage(null)
+      return
+    }
+
+    setLoadingImage(true)
+    const service = new google.maps.places.PlacesService(document.createElement('div'))
+    
+    const request: google.maps.places.TextSearchRequest = {
+      query: selectedPark.name,
+      location: new google.maps.LatLng(selectedPark.location.lat, selectedPark.location.lng),
+      radius: 1000,
+    }
+    
+    service.textSearch(request, (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+        const place = results[0]
+        if (place.place_id) {
+          service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (details, detailsStatus) => {
+            if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && details?.photos && details.photos.length > 0) {
+              setParkImage(details.photos[0].getUrl({ maxWidth: 400, maxHeight: 200 }))
+            } else {
+              setParkImage(null)
+            }
+            setLoadingImage(false)
+          })
+        } else {
+          setParkImage(null)
+          setLoadingImage(false)
+        }
+      } else {
+        setParkImage(null)
+        setLoadingImage(false)
+      }
+    })
+  }, [selectedPark])
+
   return (
     <div className="h-full overflow-y-auto backdrop-blur-md bg-zinc-900/80 border-l border-white/10">
       <div className="sticky top-0 z-10 p-4 border-b border-white/10 bg-zinc-900/90 backdrop-blur-md">
@@ -455,6 +515,31 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
       {error && (
         <div className="mx-3 mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg backdrop-blur-sm">
           <p className="text-sm text-amber-300">{error}</p>
+        </div>
+      )}
+      {selectedPark && (
+        <div className="m-3 mb-4 rounded-xl overflow-hidden bg-white/10 border border-white/20 shadow-xl">
+          {loadingImage ? (
+            <div className="h-48 bg-zinc-800/50 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+          ) : parkImage ? (
+            <img src={parkImage} alt={selectedPark.name} className="w-full h-48 object-cover" />
+          ) : (
+            <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+              <p className="text-zinc-500 text-sm">No image available</p>
+            </div>
+          )}
+          <div className="p-4">
+            <h2 className="text-lg font-bold text-white mb-2">{selectedPark.name}</h2>
+            {selectedPark.state && <p className="text-sm text-zinc-400 mb-3">{selectedPark.state}</p>}
+            <div className="flex items-center gap-3">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
+                {typeLabels[selectedPark.type]}
+              </span>
+              <span className="text-sm text-zinc-300 font-semibold">{selectedPark.distance} mi away</span>
+            </div>
+          </div>
         </div>
       )}
       <div className="p-2 space-y-2">
@@ -517,6 +602,11 @@ export default function ParksExplorer() {
     if (park.type === 'national-monument' && !showNationalMonuments) return false
     return true
   })
+
+  const localCount = allParks.filter(p => p.type === 'local').length
+  const stateCount = allParks.filter(p => p.type === 'state').length
+  const nationalParksCount = allParks.filter(p => p.type === 'national-park').length
+  const nationalMonumentsCount = allParks.filter(p => p.type === 'national-monument').length
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -638,6 +728,10 @@ export default function ParksExplorer() {
               onToggleState={() => setShowState(!showState)}
               onToggleNationalParks={() => setShowNationalParks(!showNationalParks)}
               onToggleNationalMonuments={() => setShowNationalMonuments(!showNationalMonuments)}
+              localCount={localCount}
+              stateCount={stateCount}
+              nationalParksCount={nationalParksCount}
+              nationalMonumentsCount={nationalMonumentsCount}
             />
             <MapControls onLocate={handleLocationClick} />
             <ParksSearcher 
