@@ -100,7 +100,7 @@ function MapControls({ onLocate }: { onLocate: () => void }) {
   )
 }
 
-function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void }) {
+function ParksSearcher({ onParksFound, onError }: { onParksFound: (parks: Park[]) => void; onError: (error: string) => void }) {
   const map = useMap()
 
   useEffect(() => {
@@ -108,11 +108,19 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
 
     let timeoutId: NodeJS.Timeout
     let searchId = 0
+    let retryCount = 0
 
     const searchParks = () => {
       const mapCenter = map.getCenter()
       const bounds = map.getBounds()
-      if (!mapCenter || !bounds) return
+      
+      if (!mapCenter || !bounds) {
+        if (retryCount < 5) {
+          retryCount++
+          setTimeout(searchParks, 250)
+        }
+        return
+      }
 
       const currentSearchId = ++searchId
 
@@ -129,6 +137,13 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
       
       const radius = Math.min(50000, distanceToCorner)
 
+      console.info('Parks search:', {
+        center: center,
+        zoom: map.getZoom(),
+        bounds: bounds.toUrlValue(),
+        radius: Math.round(radius)
+      })
+
       const service = new google.maps.places.PlacesService(map)
       
       const request = {
@@ -140,6 +155,11 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
 
       service.nearbySearch(request, (results, status) => {
         if (currentSearchId !== searchId) return
+
+        console.info('Places API response:', {
+          status: status,
+          resultsCount: results?.length || 0
+        })
 
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const allParks: Park[] = results.map((place) => {
@@ -177,7 +197,22 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
             return bounds.contains(parkLatLng)
           }).sort((a, b) => a.distance - b.distance)
 
+          console.info('Parks filtered:', {
+            total: allParks.length,
+            visible: visibleParks.length
+          })
+
           onParksFound(visibleParks)
+          onError('')
+        } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+          onParksFound([])
+          onError('No parks found in this area. Try zooming out or moving the map.')
+        } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
+          onParksFound([])
+          onError('Places API access denied. Please check API key restrictions.')
+        } else {
+          onParksFound([])
+          onError(`Places API error: ${status}`)
         }
       })
     }
@@ -188,19 +223,19 @@ function ParksSearcher({ onParksFound }: { onParksFound: (parks: Park[]) => void
     }
 
     const listener = google.maps.event.addListener(map, 'idle', handleIdle)
+    const onceListener = google.maps.event.addListenerOnce(map, 'idle', searchParks)
     
-    searchParks()
-
     return () => {
       google.maps.event.removeListener(listener)
+      google.maps.event.removeListener(onceListener)
       clearTimeout(timeoutId)
     }
-  }, [map, onParksFound])
+  }, [map, onParksFound, onError])
 
   return null
 }
 
-function ParksList({ parks, selectedParkId, onParkClick }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void }) {
+function ParksList({ parks, selectedParkId, onParkClick, error, onSearchArea }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string; onSearchArea: () => void }) {
   const typeColors = {
     local: 'bg-green-100 text-green-800',
     state: 'bg-yellow-100 text-yellow-800',
@@ -218,7 +253,18 @@ function ParksList({ parks, selectedParkId, onParkClick }: { parks: Park[]; sele
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <h2 className="text-lg font-semibold text-gray-900">Parks in this area</h2>
         <p className="text-sm text-gray-600">{parks.length} parks found</p>
+        <button
+          onClick={onSearchArea}
+          className="mt-2 w-full px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Search this area
+        </button>
       </div>
+      {error && (
+        <div className="p-4 bg-yellow-50 border-b border-yellow-200">
+          <p className="text-sm text-yellow-800">{error}</p>
+        </div>
+      )}
       <div className="divide-y divide-gray-200">
         {parks.map((park) => (
           <div
@@ -261,6 +307,8 @@ export default function ParksExplorer() {
   const [center, setCenter] = useState<LatLng>({ lat: 37.7749, lng: -122.4194 })
   const [parks, setParks] = useState<Park[]>([])
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null)
+  const [error, setError] = useState<string>('')
+  const [searchTrigger, setSearchTrigger] = useState(0)
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -293,6 +341,14 @@ export default function ParksExplorer() {
     setParks(foundParks)
   }, [])
 
+  const handleError = useCallback((errorMsg: string) => {
+    setError(errorMsg)
+  }, [])
+
+  const handleSearchArea = useCallback(() => {
+    setSearchTrigger(prev => prev + 1)
+  }, [])
+
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
 
   return (
@@ -310,7 +366,7 @@ export default function ParksExplorer() {
             <BlueDotMarker position={center} />
             <Recenter center={center} />
             <MapControls onLocate={handleLocationClick} />
-            <ParksSearcher onParksFound={handleParksFound} />
+            <ParksSearcher onParksFound={handleParksFound} onError={handleError} key={searchTrigger} />
             {parks.map((park) => (
               <ParkMarker
                 key={park.id}
@@ -323,7 +379,7 @@ export default function ParksExplorer() {
         </APIProvider>
       </div>
       <div className="w-[20%]">
-        <ParksList parks={parks} selectedParkId={selectedParkId} onParkClick={handleParkClick} />
+        <ParksList parks={parks} selectedParkId={selectedParkId} onParkClick={handleParkClick} error={error} onSearchArea={handleSearchArea} />
       </div>
     </div>
   )
