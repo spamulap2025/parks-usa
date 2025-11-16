@@ -111,7 +111,7 @@ function ParksSearcher({ center, onParksFound }: { center: LatLng; onParksFound:
     const request = {
       location: center,
       radius: 50000,
-      type: 'park' as google.maps.places.PlaceType,
+      type: 'park',
     }
 
     service.nearbySearch(request, (results, status) => {
