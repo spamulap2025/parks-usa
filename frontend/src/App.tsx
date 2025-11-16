@@ -19,7 +19,14 @@ interface User {
 function App() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? sessionStorage.getItem('user') : null
+      return raw ? JSON.parse(raw) as User : null
+    } catch {
+      return null
+    }
+  })
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -56,6 +63,7 @@ function App() {
       }
 
       setSuccess('Login successful!')
+      sessionStorage.setItem('user', JSON.stringify(data.user))
       setLoggedInUser(data.user)
       setEmail('')
       setPassword('')
