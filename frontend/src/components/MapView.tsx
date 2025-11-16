@@ -58,6 +58,7 @@ export default function MapView() {
           defaultZoom={15}
           gestureHandling="greedy"
           disableDefaultUI
+          mapTypeId="satellite"
           className="h-full w-full"
         >
           <Marker position={center} />
