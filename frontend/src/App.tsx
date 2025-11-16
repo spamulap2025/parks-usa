@@ -78,7 +78,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center pb-6">
-          <CardTitle className="text-2xl font-semibold">Welcome, Parker.</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Welcome</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {error && (
