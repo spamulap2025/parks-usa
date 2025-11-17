@@ -84,7 +84,9 @@ function LayerToggles({
   stateCount,
   nationalParksCount,
   nationalMonumentsCount,
-  onHomeClick
+  onHomeClick,
+  onZoomIn,
+  onZoomOut
 }: { 
   showLocal: boolean
   showState: boolean
@@ -99,6 +101,8 @@ function LayerToggles({
   nationalParksCount: number
   nationalMonumentsCount: number
   onHomeClick: () => void
+  onZoomIn: () => void
+  onZoomOut: () => void
 }){
   const baseBtn = "w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm border border-black/10 shadow-sm hover:shadow-md hover:-translate-y-0.5 flex items-center justify-center transition-all duration-200 cursor-pointer"
 
@@ -106,7 +110,8 @@ function LayerToggles({
     { 
       show: showLocal, 
       toggle: onToggleLocal, 
-      color: '#10b981', 
+      iconColor: 'text-emerald-600', 
+      ringColor: 'ring-emerald-200',
       label: 'Local Parks',
       icon: Trees,
       count: localCount
@@ -114,7 +119,8 @@ function LayerToggles({
     { 
       show: showState, 
       toggle: onToggleState, 
-      color: '#f59e0b', 
+      iconColor: 'text-amber-600', 
+      ringColor: 'ring-amber-200',
       label: 'State Parks',
       icon: Mountain,
       count: stateCount
@@ -122,7 +128,8 @@ function LayerToggles({
     { 
       show: showNationalParks, 
       toggle: onToggleNationalParks, 
-      color: '#ef4444', 
+      iconColor: 'text-rose-600', 
+      ringColor: 'ring-rose-200',
       label: 'National Parks',
       icon: Landmark,
       count: nationalParksCount
@@ -130,7 +137,8 @@ function LayerToggles({
     { 
       show: showNationalMonuments, 
       toggle: onToggleNationalMonuments, 
-      color: '#a855f7', 
+      iconColor: 'text-violet-600', 
+      ringColor: 'ring-violet-200',
       label: 'National Monuments',
       icon: Flag,
       count: nationalMonumentsCount
@@ -148,16 +156,12 @@ function LayerToggles({
                 <button
                   aria-label={`${layer.show ? 'Hide' : 'Show'} ${layer.label}`}
                   aria-pressed={layer.show}
-                  className={`${baseBtn} relative`}
+                  className={`${baseBtn} relative ${layer.show ? `ring-2 ${layer.ringColor}` : ''}`}
                   onClick={layer.toggle}
-                  style={{
-                    backgroundColor: layer.show ? layer.color : 'rgba(255, 255, 255, 0.9)',
-                    borderColor: 'rgba(0, 0, 0, 0.1)',
-                  }}
                 >
                   <Icon 
                     size={18} 
-                    className={layer.show ? 'text-white' : 'text-zinc-600'}
+                    className={layer.show ? layer.iconColor : 'text-zinc-600'}
                     strokeWidth={2.5}
                   />
                   {layer.count > 0 && (
@@ -185,6 +189,34 @@ function LayerToggles({
           </TooltipTrigger>
           <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
             <p className="text-sm font-medium">Home</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              aria-label="Zoom in"
+              className={baseBtn}
+              onClick={onZoomIn}
+            >
+              <span className="text-lg leading-none text-zinc-700">+</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
+            <p className="text-sm font-medium">Zoom in</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              aria-label="Zoom out"
+              className={baseBtn}
+              onClick={onZoomOut}
+            >
+              <span className="text-lg leading-none text-zinc-700">−</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
+            <p className="text-sm font-medium">Zoom out</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -285,7 +317,7 @@ function ParksSearcher({
         })
       }
 
-      if (showState && zoom >= 9) {
+      if (showState && zoom >= 7) {
         try {
           const ne = bounds.getNorthEast()
           const sw = bounds.getSouthWest()
@@ -335,7 +367,7 @@ function ParksSearcher({
         }
       }
 
-      if (showLocal && zoom >= 11) {
+      if (showLocal && zoom >= 9) {
         try {
           const ne = bounds.getNorthEast()
           const sw = bounds.getSouthWest()
@@ -430,9 +462,6 @@ function ParksSearcher({
 }
 
 function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[]; selectedParkId: string | null; onParkClick: (park: Park) => void; error: string }) {
-  const [parkImage, setParkImage] = useState<string | null>(null)
-  const [loadingImage, setLoadingImage] = useState(false)
-  
   const typeColors = {
     local: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     state: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -449,44 +478,6 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
 
   const selectedPark = parks.find(p => p.id === selectedParkId)
 
-  useEffect(() => {
-    if (!selectedPark) {
-      setParkImage(null)
-      return
-    }
-
-    setLoadingImage(true)
-    const service = new google.maps.places.PlacesService(document.createElement('div'))
-    
-    const request: google.maps.places.TextSearchRequest = {
-      query: selectedPark.name,
-      location: new google.maps.LatLng(selectedPark.location.lat, selectedPark.location.lng),
-      radius: 1000,
-    }
-    
-    service.textSearch(request, (results, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
-        const place = results[0]
-        if (place.place_id) {
-          service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (details, detailsStatus) => {
-            if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && details?.photos && details.photos.length > 0) {
-              setParkImage(details.photos[0].getUrl({ maxWidth: 400, maxHeight: 200 }))
-            } else {
-              setParkImage(null)
-            }
-            setLoadingImage(false)
-          })
-        } else {
-          setParkImage(null)
-          setLoadingImage(false)
-        }
-      } else {
-        setParkImage(null)
-        setLoadingImage(false)
-      }
-    })
-  }, [selectedPark])
-
   return (
     <div className="h-full overflow-y-auto bg-white/90 backdrop-blur-md border-l border-black/10">
       {error && (
@@ -495,38 +486,26 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
         </div>
       )}
       {selectedPark && (
-        <div className="m-3 mb-4 rounded-xl overflow-hidden bg-white/95 border border-black/10 shadow-xl">
-          {loadingImage ? (
-            <div className="h-48 bg-zinc-100 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-900"></div>
+        <div className="m-3 mb-4 rounded-xl bg-white/95 border border-black/10 shadow-xl p-4">
+          <h2 className="text-lg font-bold text-zinc-900 mb-2">{selectedPark.name}</h2>
+          {selectedPark.state && <p className="text-sm text-zinc-600 mb-3">{selectedPark.state}</p>}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
+                {typeLabels[selectedPark.type]}
+              </span>
+              <span className="text-sm text-zinc-700 font-semibold">{selectedPark.distance} mi away</span>
             </div>
-          ) : parkImage ? (
-            <img src={parkImage} alt={selectedPark.name} className="w-full h-48 object-cover" />
-          ) : (
-            <div className="h-48 bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center">
-              <p className="text-zinc-500 text-sm">No image available</p>
-            </div>
-          )}
-          <div className="p-4">
-            <h2 className="text-lg font-bold text-zinc-900 mb-2">{selectedPark.name}</h2>
-            {selectedPark.state && <p className="text-sm text-zinc-600 mb-3">{selectedPark.state}</p>}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
-                  {typeLabels[selectedPark.type]}
-                </span>
-                <span className="text-sm text-zinc-700 font-semibold">{selectedPark.distance} mi away</span>
-              </div>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPark.location.lat},${selectedPark.location.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 text-sm font-medium shadow-sm transition"
-              >
-                <Navigation size={16} strokeWidth={2.5} />
-                Directions
-              </a>
-            </div>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPark.location.lat},${selectedPark.location.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-zinc-100 text-sky-600 transition"
+              aria-label="Directions"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Navigation size={18} strokeWidth={2.5} />
+            </a>
           </div>
         </div>
       )}
@@ -552,6 +531,16 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
                   <span className="text-sm text-zinc-600 font-medium">{park.distance} mi</span>
                 </div>
               </div>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${park.location.lat},${park.location.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full hover:bg-zinc-100 text-sky-600 transition flex-shrink-0"
+                aria-label="Directions"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Navigation size={18} strokeWidth={2.5} />
+              </a>
             </div>
           </div>
         ))}
@@ -688,6 +677,14 @@ export default function ParksExplorer() {
     setError(errorMsg)
   }, [])
 
+  const handleZoomIn = () => {
+    setZoom((prevZoom) => (prevZoom || 11) + 1)
+  }
+
+  const handleZoomOut = () => {
+    setZoom((prevZoom) => Math.max((prevZoom || 11) - 1, 1))
+  }
+
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
 
   return (
@@ -718,6 +715,8 @@ export default function ParksExplorer() {
               nationalParksCount={nationalParksCount}
               nationalMonumentsCount={nationalMonumentsCount}
               onHomeClick={handleLocationClick}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
             />
             <ParksSearcher 
               onParksFound={handleParksFound} 
