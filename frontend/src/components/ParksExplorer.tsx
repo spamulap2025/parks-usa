@@ -184,7 +184,7 @@ function LayerToggles({
               className={baseBtn}
               onClick={onHomeClick}
             >
-              <Home size={18} className="text-zinc-700" strokeWidth={2.5} />
+              <Home size={18} className="text-[#1a73e8]" strokeWidth={2.5} />
             </button>
           </TooltipTrigger>
           <TooltipContent side="left" className="bg-white text-zinc-900 border border-zinc-200 shadow-md">
@@ -249,7 +249,8 @@ function ParksSearcher({
 
     let timeoutId: NodeJS.Timeout
     let retryCount = 0
-    let abortController: AbortController | null = null
+    let abortStateController: AbortController | null = null
+    let abortLocalController: AbortController | null = null
 
     const searchParks = async () => {
       const mapCenter = map.getCenter()
@@ -325,15 +326,15 @@ function ParksSearcher({
           
           const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"]["name"~"State Park",i](${bbox});way["leisure"="park"]["name"~"State Park",i](${bbox}););out center 100;`
           
-          if (abortController) {
-            abortController.abort()
+          if (abortStateController) {
+            abortStateController.abort()
           }
-          abortController = new AbortController()
+          abortStateController = new AbortController()
           
           const response = await fetch('https://overpass-api.de/api/interpreter', {
             method: 'POST',
             body: overpassQuery,
-            signal: abortController.signal
+            signal: abortStateController.signal
           })
           
           if (response.ok) {
@@ -375,15 +376,15 @@ function ParksSearcher({
           
           const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"](${bbox});way["leisure"="park"](${bbox}););out center 100;`
           
-          if (abortController) {
-            abortController.abort()
+          if (abortLocalController) {
+            abortLocalController.abort()
           }
-          abortController = new AbortController()
+          abortLocalController = new AbortController()
           
           const response = await fetch('https://overpass-api.de/api/interpreter', {
             method: 'POST',
             body: overpassQuery,
-            signal: abortController.signal
+            signal: abortLocalController.signal
           })
           
           if (response.ok) {
@@ -452,8 +453,11 @@ function ParksSearcher({
       google.maps.event.removeListener(listener)
       google.maps.event.removeListener(onceListener)
       clearTimeout(timeoutId)
-      if (abortController) {
-        abortController.abort()
+      if (abortStateController) {
+        abortStateController.abort()
+      }
+      if (abortLocalController) {
+        abortLocalController.abort()
       }
     }
   }, [map, onParksFound, onError, showLocal, showState, showNationalParks, showNationalMonuments, userLocation])
@@ -488,7 +492,6 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
       {selectedPark && (
         <div className="m-3 mb-4 rounded-xl bg-white/95 border border-black/10 shadow-xl p-4">
           <h2 className="text-lg font-bold text-zinc-900 mb-2">{selectedPark.name}</h2>
-          {selectedPark.state && <p className="text-sm text-zinc-600 mb-3">{selectedPark.state}</p>}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${typeColors[selectedPark.type]}`}>
@@ -523,7 +526,6 @@ function ParksList({ parks, selectedParkId, onParkClick, error }: { parks: Park[
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-zinc-900 text-[15px] truncate leading-tight">{park.name}</h3>
-                {park.state && <p className="text-sm text-zinc-600 mt-1">{park.state}</p>}
                 <div className="flex items-center gap-2 mt-2.5">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-medium border ${typeColors[park.type]}`}>
                     {typeLabels[park.type]}
