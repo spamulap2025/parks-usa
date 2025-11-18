@@ -53,7 +53,23 @@ function ParkMarker({ park, onClick }: { park: Park; onClick: () => void }) {
   
   if (!map) return null
 
-  return <Marker position={park.location} onClick={onClick} />
+  const colors = {
+    local: '#22c55e',
+    state: '#eab308',
+    'national-park': '#ef4444',
+    'national-monument': '#a855f7',
+  }
+
+  const parkIcon: google.maps.Symbol = {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 8,
+    fillColor: colors[park.type],
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2,
+  }
+
+  return <Marker position={park.location} icon={parkIcon} onClick={onClick} />
 }
 
 function LayerToggles({ 
@@ -294,7 +310,7 @@ function ParksSearcher({
         
         const data = await response.json()
         
-        const parks: Park[] = data.map((park: any) => {
+        let parks: Park[] = data.map((park: any) => {
           const location = { lat: park.latitude, lng: park.longitude }
           const distance = google.maps.geometry.spherical.computeDistanceBetween(
             new google.maps.LatLng(userLocation.lat, userLocation.lng),
@@ -311,6 +327,64 @@ function ParksSearcher({
             state: park.state_code
           }
         })
+
+        if ((showLocal || showState) && zoom >= 7) {
+          const localStateParks = parks.filter(p => p.type === 'local' || p.type === 'state')
+          
+          if (localStateParks.length === 0) {
+            try {
+              const overpassBbox = `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
+              const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"]["name"](${overpassBbox});way["leisure"="park"]["name"](${overpassBbox}););out center 100;`
+              
+              const overpassResponse = await fetch('https://overpass-api.de/api/interpreter', {
+                method: 'POST',
+                body: overpassQuery,
+                signal: abortController.signal
+              })
+              
+              if (overpassResponse.ok) {
+                const overpassData = await overpassResponse.json()
+                const overpassParks: Park[] = []
+                
+                overpassData.elements?.forEach((element: any) => {
+                  const lat = element.lat || element.center?.lat
+                  const lon = element.lon || element.center?.lon
+                  const name = element.tags?.name
+                  
+                  if (lat && lon && name) {
+                    const location = { lat, lng: lon }
+                    const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                      new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                      new google.maps.LatLng(lat, lon)
+                    ) / 1609.34
+
+                    const isStatePark = name.toLowerCase().includes('state park') || 
+                                       name.toLowerCase().includes('state recreation')
+                    
+                    if ((showState && isStatePark) || (showLocal && !isStatePark)) {
+                      overpassParks.push({
+                        id: `osm-${element.id}`,
+                        name: name,
+                        location,
+                        type: isStatePark ? 'state' : 'local',
+                        address: element.tags?.['addr:state'] || '',
+                        distance: Math.round(distance * 10) / 10,
+                        state: element.tags?.['addr:state']
+                      })
+                    }
+                  }
+                })
+                
+                parks = [...parks, ...overpassParks]
+                console.info('Added Overpass parks:', overpassParks.length)
+              }
+            } catch (overpassErr: any) {
+              if (overpassErr.name !== 'AbortError') {
+                console.warn('Overpass fallback failed:', overpassErr)
+              }
+            }
+          }
+        }
 
         const sortedParks = parks.sort((a, b) => a.distance - b.distance)
 
