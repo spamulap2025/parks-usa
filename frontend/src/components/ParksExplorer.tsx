@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
 import { Home, Navigation, Trees, Mountain, Landmark, Flag } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import federalSitesData from '../data/federal_sites.json'
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
 
 type LatLng = { lat: number; lng: number }
 
@@ -47,28 +48,12 @@ function BlueDotMarker({ position }: { position: LatLng }) {
   return <Marker position={position} icon={blueDotIcon} clickable={false} />
 }
 
-function ParkMarker({ park, isSelected, onClick }: { park: Park; isSelected: boolean; onClick: () => void }) {
+function ParkMarker({ park, onClick }: { park: Park; onClick: () => void }) {
   const map = useMap()
   
   if (!map) return null
 
-  const colors = {
-    local: '#22c55e',
-    state: '#eab308',
-    'national-park': '#ef4444',
-    'national-monument': '#a855f7',
-  }
-
-  const parkIcon: google.maps.Symbol = {
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: isSelected ? 12 : 8,
-    fillColor: colors[park.type],
-    fillOpacity: 1,
-    strokeColor: '#ffffff',
-    strokeWeight: 2,
-  }
-
-  return <Marker position={park.location} icon={parkIcon} onClick={onClick} />
+  return <Marker position={park.location} onClick={onClick} />
 }
 
 function LayerToggles({ 
@@ -249,8 +234,7 @@ function ParksSearcher({
 
     let timeoutId: NodeJS.Timeout
     let retryCount = 0
-    let abortStateController: AbortController | null = null
-    let abortLocalController: AbortController | null = null
+    let abortController: AbortController | null = null
 
     const searchParks = async () => {
       const mapCenter = map.getCenter()
@@ -276,168 +260,77 @@ function ParksSearcher({
         bounds: bounds.toUrlValue()
       })
 
-      const allSites: Park[] = []
+      const types: string[] = []
+      if (showLocal) types.push('local')
+      if (showState) types.push('state')
+      if (showNationalParks) types.push('national_park')
+      if (showNationalMonuments) types.push('national_monument')
 
-      if (showNationalParks) {
-        federalSitesData.nationalParks.forEach((park: any) => {
-          const location = { lat: park.lat, lng: park.lng }
+      if (types.length === 0) {
+        onParksFound([])
+        onError('')
+        return
+      }
+
+      try {
+        if (abortController) {
+          abortController.abort()
+        }
+        abortController = new AbortController()
+
+        const ne = bounds.getNorthEast()
+        const sw = bounds.getSouthWest()
+        const bbox = `${sw.lng()},${sw.lat()},${ne.lng()},${ne.lat()}`
+        
+        const url = `${BACKEND_URL}/parks?bbox=${bbox}&types=${types.join(',')}&limit=1000`
+        
+        const response = await fetch(url, {
+          signal: abortController.signal
+        })
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        const parks: Park[] = data.map((park: any) => {
+          const location = { lat: park.latitude, lng: park.longitude }
           const distance = google.maps.geometry.spherical.computeDistanceBetween(
             new google.maps.LatLng(userLocation.lat, userLocation.lng),
             new google.maps.LatLng(location.lat, location.lng)
           ) / 1609.34
 
-          allSites.push({
-            id: `np-${park.name}`,
+          return {
+            id: park.id,
             name: park.name,
             location,
-            type: 'national-park',
-            address: park.state || '',
+            type: park.type.replace('_', '-') as 'local' | 'state' | 'national-park' | 'national-monument',
+            address: park.state_code || '',
             distance: Math.round(distance * 10) / 10,
-            state: park.state
-          })
+            state: park.state_code
+          }
         })
-      }
 
-      if (showNationalMonuments) {
-        federalSitesData.nationalMonuments.forEach((monument: any) => {
-          const location = { lat: monument.lat, lng: monument.lng }
-          const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(userLocation.lat, userLocation.lng),
-            new google.maps.LatLng(location.lat, location.lng)
-          ) / 1609.34
+        const sortedParks = parks.sort((a, b) => a.distance - b.distance)
 
-          allSites.push({
-            id: `nm-${monument.name}`,
-            name: monument.name,
-            location,
-            type: 'national-monument',
-            address: monument.state || '',
-            distance: Math.round(distance * 10) / 10,
-            state: monument.state
-          })
+        console.info('Parks from API:', {
+          totalParks: sortedParks.length,
+          zoom: zoom
         })
-      }
 
-      if (showState && zoom >= 7) {
-        try {
-          const ne = bounds.getNorthEast()
-          const sw = bounds.getSouthWest()
-          const bbox = `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
-          
-          const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"]["name"~"State Park",i](${bbox});way["leisure"="park"]["name"~"State Park",i](${bbox}););out center 100;`
-          
-          if (abortStateController) {
-            abortStateController.abort()
-          }
-          abortStateController = new AbortController()
-          
-          const response = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: overpassQuery,
-            signal: abortStateController.signal
-          })
-          
-          if (response.ok) {
-            const data = await response.json()
-            data.elements?.forEach((element: any) => {
-              const lat = element.lat || element.center?.lat
-              const lon = element.lon || element.center?.lon
-              if (lat && lon) {
-                const location = { lat, lng: lon }
-                const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(userLocation.lat, userLocation.lng),
-                  new google.maps.LatLng(lat, lon)
-                ) / 1609.34
-
-                allSites.push({
-                  id: `sp-${element.id}`,
-                  name: element.tags?.name || 'State Park',
-                  location,
-                  type: 'state',
-                  address: '',
-                  distance: Math.round(distance * 10) / 10,
-                  state: element.tags?.['addr:state']
-                })
-              }
-            })
-          }
-        } catch (err: any) {
-          if (err.name !== 'AbortError') {
-            console.warn('State parks fetch failed:', err)
-          }
+        onParksFound(sortedParks)
+        
+        if (sortedParks.length === 0) {
+          onError('No parks in this area. Pan or zoom to explore different regions.')
+        } else {
+          onError('')
         }
-      }
-
-      if (showLocal && zoom >= 9) {
-        try {
-          const ne = bounds.getNorthEast()
-          const sw = bounds.getSouthWest()
-          const bbox = `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
-          
-          const overpassQuery = `[out:json][timeout:15];(node["leisure"="park"](${bbox});way["leisure"="park"](${bbox}););out center 100;`
-          
-          if (abortLocalController) {
-            abortLocalController.abort()
-          }
-          abortLocalController = new AbortController()
-          
-          const response = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: overpassQuery,
-            signal: abortLocalController.signal
-          })
-          
-          if (response.ok) {
-            const data = await response.json()
-            data.elements?.forEach((element: any) => {
-              const name = element.tags?.name
-              if (!name || name.toLowerCase().includes('state park')) return
-              
-              const lat = element.lat || element.center?.lat
-              const lon = element.lon || element.center?.lon
-              if (lat && lon) {
-                const location = { lat, lng: lon }
-                const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(userLocation.lat, userLocation.lng),
-                  new google.maps.LatLng(lat, lon)
-                ) / 1609.34
-
-                allSites.push({
-                  id: `lp-${element.id}`,
-                  name: name,
-                  location,
-                  type: 'local',
-                  address: '',
-                  distance: Math.round(distance * 10) / 10,
-                  state: element.tags?.['addr:state']
-                })
-              }
-            })
-          }
-        } catch (err: any) {
-          if (err.name !== 'AbortError') {
-            console.warn('Local parks fetch failed:', err)
-          }
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Parks fetch failed:', err)
+          onError('Failed to load parks. Please try again.')
         }
-      }
-
-      const visibleSites = allSites.filter((site) => {
-        const siteLatLng = new google.maps.LatLng(site.location.lat, site.location.lng)
-        return bounds.contains(siteLatLng)
-      }).sort((a, b) => a.distance - b.distance)
-
-      console.info('Sites filtered:', {
-        totalSites: allSites.length,
-        visibleInViewport: visibleSites.length,
-        zoom: zoom
-      })
-
-      onParksFound(visibleSites)
-      
-      if (visibleSites.length === 0) {
-        onError('No parks in this area. Pan or zoom to explore different regions.')
-      } else {
-        onError('')
       }
     }
 
@@ -453,11 +346,8 @@ function ParksSearcher({
       google.maps.event.removeListener(listener)
       google.maps.event.removeListener(onceListener)
       clearTimeout(timeoutId)
-      if (abortStateController) {
-        abortStateController.abort()
-      }
-      if (abortLocalController) {
-        abortLocalController.abort()
+      if (abortController) {
+        abortController.abort()
       }
     }
   }, [map, onParksFound, onError, showLocal, showState, showNationalParks, showNationalMonuments, userLocation])
@@ -733,7 +623,6 @@ export default function ParksExplorer() {
               <ParkMarker
                 key={park.id}
                 park={park}
-                isSelected={selectedParkId === park.id}
                 onClick={() => handleMarkerClick(park)}
               />
             ))}
