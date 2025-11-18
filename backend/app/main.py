@@ -31,7 +31,7 @@ class UserRegister(BaseModel):
     password: str
 
 class UserLogin(BaseModel):
-    username: str
+    username: str  # Can be username or email
     password: str
 
 class UserResponse(BaseModel):
@@ -74,14 +74,29 @@ async def register(user: UserRegister):
 
 @app.post("/login")
 async def login(credentials: UserLogin):
-    user_id = str(uuid.uuid4())
+    user_id = None
+    if "@" in credentials.username:
+        user_id = email_index.get(credentials.username)
+    else:
+        user_id = username_index.get(credentials.username)
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    user_data = users_db.get(user_id)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    password_bytes = credentials.password.encode('utf-8')
+    if not bcrypt.checkpw(password_bytes, user_data["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
     return {
         "message": "Login successful",
         "user": {
-            "user_id": user_id,
-            "username": credentials.username,
-            "email": f"{credentials.username}@example.com"
+            "user_id": user_data["user_id"],
+            "username": user_data["username"],
+            "email": user_data["email"]
         }
     }
 
